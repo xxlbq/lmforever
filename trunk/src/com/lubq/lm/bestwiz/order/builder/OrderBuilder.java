@@ -6,6 +6,7 @@ import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
+import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
 public interface OrderBuilder {
@@ -13,14 +14,14 @@ public interface OrderBuilder {
 	//
 	void initOrder();
 	//
-	JhfAliveOrder createOrder(String orderId);
+	JhfAliveOrder createOrder() throws IdGenerateException;
 	//
 	void writeOrder(JhfAliveOrder order) throws DaoException;
 	//
 	void writeBatchOrder(List<JhfAliveOrder> orderList);
 	
 	//
-	JhfOrderBind createOrderBind(String orderBindId ,String orderId);
+	JhfOrderBind createOrderBind(String orderBindId ,String orderId,String tradeId);
 	
 	void writeOrderBind(JhfOrderBind bind) throws DaoException;
 	//
@@ -28,5 +29,5 @@ public interface OrderBuilder {
 	
 	void service() throws  Exception;
 
-	void finishOrder(JhfOrderBind bind) throws JMSException;
+	void finishOrder(OrderBindInfo bindInfo) throws JMSException;
 }
