@@ -3,5 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jhf_panta_core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lmcommon"/>
+	<classpathentry kind="lib" path="/lmcommon/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="/lmcommon/lib/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="/lmcommon/lib/commons-configuration-1.3.jar"/>
+	<classpathentry kind="lib" path="/lmcommon/lib/commons-lang-2.1.jar"/>
+	<classpathentry kind="lib" path="/lmcommon/lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="/lmcommon/lib/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

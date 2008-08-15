@@ -1,12 +1,13 @@
 package com.lubq.lm.bestwiz.order.builder;
 
 import java.math.BigDecimal;
-import java.util.Vector;
+import java.util.Date;
 
-import cn.bestwiz.jhf.core.bo.bean.OrderInfo;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
+import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
@@ -17,13 +18,25 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	public void initOrder() {
 		System.out.println( " Instant order do init() ..." );
-		
+		System.out.println( " Instant order init() over ." );
 	}
 
-	public void finishOrder(JhfOrderBind bind) throws JMSException {
+	
+	
+	public JhfAliveOrder createOrder() throws IdGenerateException {
+		return getTempOrder();
+	}
+
+
+
+
+
+	public void finishOrder(OrderBindInfo bindInfo) throws JMSException {
 		System.out.println( " Instant order do finish() ..." );
 		SimpleSender sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
-		sender.sendMessage(bind);
+		sender.sendMessage(bindInfo);
+		sender.close();
+		System.out.println( " Instant order finish() over ." );
 	}
 
 	
@@ -34,30 +47,45 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	public static void main(String[] args) throws Exception {
 		
-		JhfAliveOrder order  = getTempOrder();
 		
 		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory();
-		fac.setBatch(false);
+		JhfAliveOrder order  = fac.getTempOrder();
 		
+		fac.setBatch(false);
+		fac.setOrder(order);
+//		fac.set
 		
 		
 		fac.doInstantOrder();
 	}
 	
 	
-	public static  JhfAliveOrder getTempOrder(){
+	public   JhfAliveOrder getTempOrder() throws IdGenerateException{
+		
+		String orderPriceStr = "200.10";
+		String executionPriceStr = "100.00";
+		String boardRateStr = "100.00";
+		String sideStr     = "1";
+		String slippageStr = "0.01";
+		String tradePriceStr = executionPriceStr;
+		String customerId = "00000101";
+		String tradeTypeStr = "0";
+		String orderStatuStr = "1";
+		String orderTypeStr = "0";
+		String executionTypeStr = "12";
+		
 		JhfAliveOrder order  = new JhfAliveOrder();
 		
 		order.setActivationType(BigDecimal.ZERO);
 		order.setActiveFlag(BigDecimal.ONE);
 		
-		order.setBoardRate(BigDecimal.valueOf(115.68));
+		order.setBoardRate(new BigDecimal(boardRateStr));
 		order.setCancelRejectFlag(BigDecimal.ONE);
 		order.setChannelId("WEB");
 		order.setCurrencyPair("USD/JPY");
-		order.setCustomerId("00000101");
-		order.setExecutionPrice(BigDecimal.valueOf(115.68));
-		order.setExecutionType(new BigDecimal("12"));
+		order.setCustomerId(customerId);
+		order.setExecutionPrice(new BigDecimal(executionPriceStr));
+		order.setExecutionType(new BigDecimal(executionTypeStr));
 		order.setExpirationType(new BigDecimal("3"));
 		
 		order.setInputStaffId("lubq");
@@ -67,36 +95,43 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		order.setOrderAmount(BigDecimal.valueOf(10000));
 		order.setOrderBindId(IdGenerateFacade.getOrderBindId());
 		order.setOrderDate("20080815");
-		order.setOrderId(IdGenerateFacade.getOrderId());
-		order.setOrderPrice(Rate.getAskRate());
-		order.setOrderRoute(0);
-		order.setOrderStatus(0);
-		order.setOrderTime("2006-10-25 10:15:38");
-		order.setOrderType(0);
-		order.setPriceId("520");
-		order.setProductId("S044");	
 		
-		order.setSide(-1);
-		order.setSlippage(BigDecimal.valueOf(0.05));
-		order.setOrderStatus(0);
+		JhfAliveOrderId id = new JhfAliveOrderId();
+		id.setOrderId(IdGenerateFacade.getOrderId());
+		id.setTradeId(IdGenerateFacade.getTradeId());
+		order.setId(id);
+		
+		
+		order.setOrderPrice(new BigDecimal(orderPriceStr));
+		order.setOrderRoute(BigDecimal.ZERO);
+		order.setOrderStatus(new BigDecimal(orderStatuStr));
+		order.setOrderTime("154938");
+		order.setOrderType(new BigDecimal(orderTypeStr));
+		order.setPriceId("PID007");
+		//USD/JPY = A001,EUR/JPY = A002
+		order.setProductId("A001");	
+		
+		order.setSide(new BigDecimal(sideStr));
+		order.setSlippage(new BigDecimal(slippageStr));
 		order.setTopOrderId("520");
-		order.setTradeID(IdGenerateFacade.getTradeId());
-		order.setTradePrice(BigDecimal.valueOf(125.6));
-		order.setUpdateDateTime("2006-10-25 10:15:38");
-		order.setUpdateStaffId("zuolin");
-//		m_orderInfo.setCustomerOrderNumber(IdGenerateFacade.getCustomerOrderNo(m_orderInfo.getOrderId()));
-		//新规通常注文
-		Vector<OrderInfo> vcOrder=new Vector<OrderInfo>();	
-		vcOrder.add(0,m_orderInfo);
 		
-    	// 保留orderbind
-		OrderBindInfo orderBindInfo = new OrderBindInfo();
-		Vector<OrderBindInfo> vcOrderBind=new Vector<OrderBindInfo>();
-		orderBindInfo.setOrderBindId(m_orderInfo.getOrderBindId());
-		orderBindInfo.setTradeId(m_orderInfo.getTradeID());
-		orderBindInfo.setOrderId(m_orderInfo.getOrderId());
-		vcOrderBind.add(0,orderBindInfo);
+		order.setTradePrice(new BigDecimal(tradePriceStr));
+		order.setInputDate(new Date());
+		order.setUpdateDate(new Date());
+		order.setUpdateStaffId("lubq");
+		order.setCustomerOrderNo(IdGenerateFacade.obtainCustomerOrderNo(customerId));
+
+		order.setOrderDatetime(new Date());
+		order.setTradeType(new BigDecimal(tradeTypeStr));
+		order.setChangeReason(new BigDecimal("1"));
+		//web,mobile,ajax
+		order.setChannelId("1");
+		
+		
 		return order;
 	}
+	
+
+	
 }
 
