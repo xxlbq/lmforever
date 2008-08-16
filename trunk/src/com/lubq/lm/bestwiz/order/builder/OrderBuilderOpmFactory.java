@@ -4,15 +4,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import com.lm.common.util.prop.PropertiesUtil;
-
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
-import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
+
+import com.lm.common.util.prop.PropertiesUtil;
 
 public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 
@@ -30,44 +30,52 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 	
 	
 	
-	public JhfAliveOrder createOrder(String customer)
-			throws IdGenerateException {
+	public JhfOrderBind createOrderBind(String orderBindId, String orderId,
+			String tradeId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+
+
+	public JhfAliveOrder createOrder(String customer)
+			throws IdGenerateException {
+		return getOpmOrder(customer);
+	}
+
 	public void finishBatchOrder(OrderBindInfo bindInfo) throws JMSException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void finishOrder(OrderBindInfo bindInfo) throws JMSException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public String getCustomerId() {
-		// TODO Auto-generated method stub
-		return null;
+		return propUtil.getStringValue("customerId");
 	}
 
 	public List<String> getCustomerIdList() {
-		// TODO Auto-generated method stub
-		return null;
+		return propUtil.getStringListValue("customerId.list");
 	}
 
 	public String getFullPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return propUtil.getPropFullPath();
 	}
 
 	public void initOrder() {
-		// TODO Auto-generated method stub
+		System.out.println( " Instant order do init() ..." );
+		System.out.println( " Instant order init() over ." );
 		
 	}
 
+	
+	public void doOpmOrder() throws Exception{
+		service();
+	}
+	
 
-	public   JhfAliveOrder getInstantsOrder(String customer) throws IdGenerateException{
+	public JhfAliveOrder getOpmOrder(String customer) throws IdGenerateException{
 		
 //		String orderPriceStr = "200.10";
 		String executionPriceStr = "100.00";
@@ -138,4 +146,7 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		return order;
 	}
 
+	
+	
+	
 }
