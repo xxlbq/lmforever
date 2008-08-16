@@ -10,6 +10,8 @@ import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBindId;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.jms.DestinationConstant;
@@ -29,7 +31,6 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		
 		System.out.println("fullPropPath:"+fullPropPath);
 		this.propUtil = initProperty(fullPropPath);
-		
 		
 	}
 	
@@ -55,14 +56,29 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	}
 
 
-
+	public JhfOrderBind createOrderBind(String orderBindId,String orderId,String tradeId) {
+		
+		JhfOrderBind bind = new JhfOrderBind();
+		
+		JhfOrderBindId id = new JhfOrderBindId();
+		id.setOrderBindId(orderBindId);
+		id.setOrderId(orderId);
+		id.setTradeId(tradeId);
+		
+		bind.setId(id);
+		bind.setActiveFlag(BigDecimal.ONE);
+		bind.setInputDate (new Date());
+		bind.setUpdateDate(new Date());
+		
+		return bind;
+		
+	}
 
 
 	public void finishOrder(OrderBindInfo bindInfo) throws JMSException {
-		System.out.println( " Instant order do finish() ..." );
 		
+		System.out.println( " Instant order do finish() ..." );
 		orderRequestSender.sendMessage(bindInfo);
-
 		System.out.println( " Instant order finish() over ." );
 	}
 

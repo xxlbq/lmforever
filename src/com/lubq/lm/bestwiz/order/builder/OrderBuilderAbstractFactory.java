@@ -29,23 +29,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
 	int mode = 1 ;
 
-	public JhfOrderBind createOrderBind(String orderBindId,String orderId,String tradeId) {
-		
-		JhfOrderBind bind = new JhfOrderBind();
-		
-		JhfOrderBindId id = new JhfOrderBindId();
-		id.setOrderBindId(orderBindId);
-		id.setOrderId(orderId);
-		id.setTradeId(tradeId);
-		
-		bind.setId(id);
-		bind.setActiveFlag(BigDecimal.ONE);
-		bind.setInputDate (new Date());
-		bind.setUpdateDate(new Date());
-		
-		return bind;
-		
-	}
+
 
 	public void writeBatchOrder(List<JhfAliveOrder> orderList) throws DaoException {
 		for (JhfAliveOrder jhfAliveOrder : orderList) {
@@ -84,15 +68,21 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 			JhfOrderBind bind = createOrderBind(orderbindId,order.getId().getOrderId(),order.getId().getTradeId());
 			
 			writeOrder(order);
-			writeOrderBind(bind);
+			
+			if(null != bind){
+				writeOrderBind(bind);
+			}
 			
 			DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
 			DbSessionFactory.closeConnection();
 			
-			OrderBindInfo bindInfo =  OrderBindInfoFactory.getInstance().createInfo(bind);
-			bindInfo = this.setupOrderBindInfo(bindInfo, order);
-			
-			finishOrder(bindInfo);
+			if(null != bind){
+				
+				OrderBindInfo bindInfo =  OrderBindInfoFactory.getInstance().createInfo(bind);
+				bindInfo = this.setupOrderBindInfo(bindInfo, order);
+				
+				finishOrder(bindInfo);
+			}
 			
 		}else{
 			
