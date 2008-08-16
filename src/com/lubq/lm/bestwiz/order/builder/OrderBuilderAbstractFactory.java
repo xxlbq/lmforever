@@ -5,39 +5,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
 
-
-
-
-import com.lm.common.util.prop.PropertiesUtil;
 
 import cn.bestwiz.jhf.core.bo.contructor.OrderBindInfoFactory;
-import cn.bestwiz.jhf.core.bo.enums.ChangeReasonEnum;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.BaseMainDao;
 import cn.bestwiz.jhf.core.dao.DAOFactory;
-import cn.bestwiz.jhf.core.dao.OrderDao;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBindId;
 import cn.bestwiz.jhf.core.dao.util.DbSessionFactory;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
-import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
-import cn.bestwiz.jhf.core.util.DataLogger;
-import cn.bestwiz.jhf.core.util.LogUtil;
+
+
+import com.lm.common.util.prop.PropertiesUtil;
 
 public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
-	private static Log log = LogUtil.getLog(OrderBuilderAbstractFactory.class);
+//	private static Log log = LogUtil.getLog(OrderBuilderAbstractFactory.class);
 	
-//	private String orderId;
-	private String bindId;
 	private boolean isBatch;
-	
-	private JhfAliveOrder order;
-	private JhfOrderBind bind;
 	
 	int mode = 1 ;
 
@@ -52,25 +40,26 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		
 		bind.setId(id);
 		bind.setActiveFlag(BigDecimal.ONE);
-		bind.setInputDate(new Date());
+		bind.setInputDate (new Date());
 		bind.setUpdateDate(new Date());
 		
 		return bind;
 		
 	}
 
-	public void writeBatchOrder(List<JhfAliveOrder> orderList) {
-		// TODO Auto-generated method stub
-		
+	public void writeBatchOrder(List<JhfAliveOrder> orderList) throws DaoException {
+		for (JhfAliveOrder jhfAliveOrder : orderList) {
+			writeOrder(jhfAliveOrder);
+		}
 	}
 
-	public List<JhfOrderBind> writeBatchOrderBind(List<JhfOrderBind> bindList) {
-		// TODO Auto-generated method stub
-		return null;
+	public void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException {
+		for (JhfOrderBind jhfOrderBind : bindList) {
+			writeOrderBind(jhfOrderBind);
+		}
 	}
 
 	public void writeOrder(JhfAliveOrder order) throws DaoException {
-
 //		DAOFactory.getOrderDao().createOrder(order);
 		  BaseMainDao bdao = new BaseMainDao();
 		  bdao.save(order);
@@ -79,10 +68,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 
 	public void writeOrderBind(JhfOrderBind bind) throws DaoException {
 		DAOFactory.getOrderDao().createOrderBind(bind);
-		
 	}
-
-	
 	
 	public void service() throws Exception {
 		
@@ -92,16 +78,16 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 			
 			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 			
-			order = createOrder();
+			JhfAliveOrder order = createOrder(getCustomerId());
 			
 			String orderbindId = IdGenerateFacade.getOrderBindId();
-			
-			bind = createOrderBind(orderbindId,order.getId().getOrderId(),order.getId().getTradeId());
+			JhfOrderBind bind = createOrderBind(orderbindId,order.getId().getOrderId(),order.getId().getTradeId());
 			
 			writeOrder(order);
 			writeOrderBind(bind);
 			
 			DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+			DbSessionFactory.closeConnection();
 			
 			OrderBindInfo bindInfo =  OrderBindInfoFactory.getInstance().createInfo(bind);
 			bindInfo = this.setupOrderBindInfo(bindInfo, order);
@@ -110,22 +96,69 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 			
 		}else{
 			
+			List<OrderBindInfo> orderBindInfoList = new ArrayList<OrderBindInfo>(); 
+			//多个customerId 
+			List<String> customerIdList = getCustomerIdList();
+			
+			
+			for (String cstId : customerIdList) {
+				
+				for(int bindi = 0; bindi < getOrderBindListSize(); bindi++){
+					
+					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
+					
+					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
+					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
+					//生成orderBindId ，一个bindId，对应多个orderId
+					String orderbindId = IdGenerateFacade.getOrderBindId();
+					
+					for (int i = 0; i < getBatchSize(); i++) {
+						//创建order对象，并添加到orderList中
+						JhfAliveOrder order = createOrder(cstId);
+						orderList.add(order);
+						//创建orderBind对象，并添加到orderBindList中
+						JhfOrderBind bind = createOrderBind(orderbindId,order.getId().getOrderId(),order.getId().getTradeId());
+						orderBindList.add(bind);
+						//创建orderBindInfo对象，并添加到orderBindInfoList中
+						OrderBindInfo bindInfo =  OrderBindInfoFactory.getInstance().createInfo(bind);
+						bindInfo = this.setupOrderBindInfo(bindInfo, order);
+						orderBindInfoList.add(bindInfo);
+					}
+					//将 order 写入db
+					writeBatchOrder(orderList);
+					//将 orderbind 写入 db
+					writeBatchOrderBind(orderBindList);
+	
+					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+					
+				}
+	
+			}
+			
+			for (OrderBindInfo orderBindInfo : orderBindInfoList) {
+				finishOrder(orderBindInfo);
+			}
+
+			DbSessionFactory.closeConnection();
 			
 		}
 	
 	}
 
 	
-	
-	
-
-
-	public String getBindId() {
-		return bindId;
+	private int getOrderBindListSize() {
+		return initProperty(getFullPath()).getIntValue("orderBindListSize");
 	}
+	
+	public int getBatchSize(){
+		return initProperty(getFullPath()).getIntValue("batchSize");
+	}
+	
+	
 
-	public void setBindId(String bindId) {
-		this.bindId = bindId;
+
+	public PropertiesUtil initProperty(String fullPropPath){
+		return new PropertiesUtil(fullPropPath);
 	}
 
 	public boolean isBatch() {
@@ -136,22 +169,8 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		this.isBatch = isBatch;
 	}
 
-	public JhfAliveOrder getOrder() {
-		return order;
-	}
 
-	public void setOrder(JhfAliveOrder order) {
-		this.order = order;
-	}
 
-	public JhfOrderBind getBind() {
-		return bind;
-	}
-
-	public void setBind(JhfOrderBind bind) {
-		this.bind = bind;
-	}
-	
 	private OrderBindInfo setupOrderBindInfo(OrderBindInfo bindInfo,JhfAliveOrder order){
 		
 		bindInfo.setCurrencyPair(order.getCurrencyPair());
