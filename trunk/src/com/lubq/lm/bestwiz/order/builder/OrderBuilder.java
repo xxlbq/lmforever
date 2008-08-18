@@ -13,27 +13,31 @@ import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
 public interface OrderBuilder {
 	
-
-	void initOrder();
+	//order 执行前初始化方法
+	void initOrder() throws  Exception;
 
 	JhfAliveOrder createOrder(String customer) throws IdGenerateException;
 	JhfOrderBind  createOrderBind(String orderBindId ,String orderId,String tradeId);
 
 	void writeOrder(JhfAliveOrder order) throws DaoException;
 	void writeBatchOrder(List<JhfAliveOrder> orderList) throws DaoException;
-	
 	void writeOrderBind(JhfOrderBind bind) throws DaoException;
 	void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException;
 
+	//order 执行的主方法
 	void service() throws  Exception;
 	
-	PropertiesUtil initProperty(String fullPropPath);
+	//读取 order 属性设置的 property ，返回PropertiesUtil
+	PropertiesUtil readProperty(String fullPropPath);
+	//获得 property 文件的 路径
+	String getPropFullPath();
 	
-	String getFullPath();
+	//获得order一些属性的方法
 	String getCustomerId();
 	List<String> getCustomerIdList();
 
-	void finishOrder(OrderBindInfo bindInfo) throws JMSException;
-	void finishBatchOrder(OrderBindInfo bindInfo) throws JMSException;
+	//order 执行完成后的方法
+//	void finishOrder(OrderBindInfo bindInfo) throws JMSException;
+	void finishOrder() throws JMSException;
 	
 }
