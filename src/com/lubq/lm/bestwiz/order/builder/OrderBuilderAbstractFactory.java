@@ -74,6 +74,9 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
 	
 	public void doOrder() throws Exception{
+		
+		propUtil = loadProperty(getPropFullPath());
+		
 		initOrder();
 		service();
 		finishOrder();
@@ -163,13 +166,13 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 //	
 //	}
 
-	public PropertiesUtil readProperty(String fullPropPath){
-		return new PropertiesUtil(fullPropPath);
-	}
+//	public PropertiesUtil readProperty(String fullPropPath){
+//		return new PropertiesUtil(fullPropPath);
+//	}
 	
-	public String getPropFullPath() {
-		return getPropUtil().getPropFullPath();
-	}
+//	public String getPropFullPath() {
+//		return getPropUtil().getPropFullPath();
+//	}
 	
 	public String getCustomerId() {
 		return propUtil.getStringValue("customerId");
@@ -196,7 +199,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	}
 	
 	protected int getBatchSize(){
-		return getPropUtil().getIntValue("batchSize");
+		return getPropUtil().getIntValue("orderBatchSize");
 	}
 	
 	
@@ -279,7 +282,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	}
 	
 	public PropertiesUtil getPropUtil() {
-		return propUtil;
+		return this.propUtil;
 	}
 
 
