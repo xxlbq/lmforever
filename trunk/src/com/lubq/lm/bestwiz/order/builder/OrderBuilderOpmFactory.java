@@ -1,17 +1,15 @@
 package com.lubq.lm.bestwiz.order.builder;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
-import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
+import cn.bestwiz.jhf.core.dao.util.DbSessionFactory;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
-import cn.bestwiz.jhf.core.jms.DestinationConstant;
-import cn.bestwiz.jhf.core.jms.SimpleSender;
-import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
 import com.lm.common.util.prop.PropertiesUtil;
@@ -20,24 +18,23 @@ import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 
 
-	private PropertiesUtil propUtil;
+	private String propFullPath;
 
 	
 	
 	public OrderBuilderOpmFactory(String fullPropPath) {
 
-		System.out.println("fullPropPath:"+fullPropPath);
-		this.propUtil = readProperty(fullPropPath);
+		System.out.println("instants order fullPropPath:"+fullPropPath);
+		this.propFullPath = fullPropPath;
 		
 	}
 	
-	
-	
-//	public JhfOrderBind createOrderBind(String orderBindId, String orderId,
-//			String tradeId) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+
+
+
+	public PropertiesUtil loadProperty(String fullPropPath) {
+		return new PropertiesUtil(fullPropPath);
+	}
 
 
 
@@ -46,36 +43,13 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		return getOpmOrder(customer);
 	}
 
-	public void finishBatchOrder(OrderBindInfo bindInfo) throws JMSException {
-		
-	}
-
-	public void finishOrder(OrderBindInfo bindInfo) throws JMSException {
-		
-	}
-
-	public String getCustomerId() {
-		return propUtil.getStringValue("customerId");
-	}
-
-	public List<String> getCustomerIdList() {
-		return propUtil.getStringListValue("customerId.list");
-	}
+	
 
 	public String getPropFullPath() {
-		return propUtil.getPropFullPath();
+		return this.propFullPath;
 	}
 
-	public void initOrder() {
-		System.out.println( " Instant order do init() ..." );
-		System.out.println( " Instant order init() over ." );
-		
-	}
 
-	
-	public void doOpmOrder() throws Exception{
-		service();
-	}
 	
 
 	public JhfAliveOrder getOpmOrder(String customer)
@@ -139,7 +113,7 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		order.setForceRelationFlag(BigDecimal.ZERO);
 		order.setCancelRejectFlag(BigDecimal.ZERO);
 		order.setCustExecutionType(new BigDecimal("0"));
-		order.setExpirationType(new BigDecimal("-1"));
+		order.setExpirationType(new BigDecimal("3"));
 		order.setStPriceId(BigDecimal.ZERO);
 		order.setInputStaffId("system");
 		order.setAgentStaffId("system");
@@ -150,31 +124,110 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 	}
 
 	
-	public static void main(String[] args) throws Exception {
+
+	
+	public void initOrder() {
+		System.out.println( " Instant order do init() ..." );
+		System.out.println( " Instant order init() over ." );
 		
-		
-		OrderBuilderOpmFactory fac = new OrderBuilderOpmFactory(OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME);
-		
-//		fac.setBatch(false);
-//		fac.setBatch(true);
-		
-		fac.doOpmOrder();
-		
-		System.exit(0);
 	}
 
-
-
 	public void finishOrder() throws JMSException {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Opm Order finishing   ...");
+		System.out.println("Opm Order finish   over .");
 	}
 
 
 
 	public void service() throws Exception {
-		// TODO Auto-generated method stub
+
+		System.out.println("isBatch:"+getPropUtil().getBooleanValue("isBatch"));
 		
+		if ( ! getPropUtil().getBooleanValue("isBatch")) {
+			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
+
+			JhfAliveOrder order = createOrder(getCustomerId());
+
+//			String orderbindId = IdGenerateFacade.getOrderBindId();
+//			JhfOrderBind bind = createOrderBind(orderbindId, order.getId().getOrderId(), order.getId().getTradeId());
+
+			writeOrder(order);
+
+//			if (null != bind) {
+//				writeOrderBind(bind);
+//			}
+
+			DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+			DbSessionFactory.closeConnection();
+
+//			if (null != bind) {
+//
+//				singleBindInfo = OrderBindInfoFactory.getInstance().createInfo(bind);
+//				singleBindInfo = setupOrderBindInfo(singleBindInfo, order);
+//
+//			}
+
+		} else {
+
+//			bindInfoList = new ArrayList<OrderBindInfo>();
+			// 多个customerId
+			List<String> customerIdList = getCustomerIdList();
+
+			for (String cstId : customerIdList) {
+
+//				for (int bindi = 0; bindi < getOrderBindListSize(); bindi++) {
+
+					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
+
+					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
+//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
+					// 生成orderBindId ，一个bindId，对应多个orderId
+//					String orderbindId = IdGenerateFacade.getOrderBindId();
+
+					for (int i = 0; i < getBatchSize(); i++) {
+						// 创建order对象，并添加到orderList中
+						JhfAliveOrder order = createOrder(cstId);
+						orderList.add(order);
+						// 创建orderBind对象，并添加到orderBindList中
+//						JhfOrderBind bind = createOrderBind(orderbindId, order
+//								.getId().getOrderId(), order.getId()
+//								.getTradeId());
+//						orderBindList.add(bind);
+
+					}
+
+					// 将 order 写入db
+					writeBatchOrder(orderList);
+					// 将 orderbind 写入 db
+//					writeBatchOrderBind(orderBindList);
+
+					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+
+					// 创建orderBindInfo对象，并添加到orderBindInfoList中
+//					OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(
+//							orderbindId, orderList);
+//
+//					bindInfoList.add(bindInfo);
+				}
+
+//			}
+
+
+			DbSessionFactory.closeConnection();
+
+		}
+
 	}
+	
+	public static void main(String[] args) throws Exception {
+		
+		
+		OrderBuilderOpmFactory fac = new OrderBuilderOpmFactory(OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME);
+
+		fac.doOrder();
+		
+		System.exit(0);
+	}
+
 	
 }

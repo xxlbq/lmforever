@@ -23,9 +23,6 @@ import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 
 
 
-
-
-
 public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	//成行注文需要发送 jms 给trader
 	private SimpleSender orderRequestSender = null;
@@ -34,22 +31,25 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	private List<OrderBindInfo> bindInfoList = null;
 
+	private String propFullPath;
 	
 	
 	public OrderBuilderInstantFactory(SimpleSender sender,String fullPropPath) {
 		this.orderRequestSender = sender;
-		
 		System.out.println("instants order fullPropPath:"+fullPropPath);
-		setPropUtil(loadProperty(fullPropPath));
-		
+		this.propFullPath = fullPropPath;
 	}
+	
 	
 	public PropertiesUtil loadProperty(String fullPropPath){
 		return new PropertiesUtil(fullPropPath);
 	}
 
 	
-
+	
+	public String getPropFullPath() {
+		return this.propFullPath;
+	}
 
 
 	
@@ -79,11 +79,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	}
 	
 	
-	
-	
-	
-	
-	
+
 	
 	public void initOrder() {
 		System.out.println( " Instant order do init() ..." );
@@ -97,9 +93,11 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		if(getPropUtil().getBooleanValue("isBatch")){
 			System.out.println("Multi bind info sending ...");
 			afterMultiInstantsOrder(bindInfoList);
+			System.out.println("Multi bind info send over .");
 		}else{
 			System.out.println("Single bind info sending ...");
 			afterSingleInstantsOrder(singleBindInfo);
+			System.out.println("Single bind info send over .");
 		}
 	}
 
@@ -131,7 +129,6 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 				singleBindInfo = OrderBindInfoFactory.getInstance().createInfo(bind);
 				singleBindInfo = setupOrderBindInfo(singleBindInfo, order);
 
-//				finishOrder(bindInfo);
 			}
 
 		} else {
@@ -179,9 +176,6 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 
 			}
 
-//			for (OrderBindInfo orderBindInfo : orderBindInfoList) {
-//				finishOrder(orderBindInfo);
-//			}
 
 			DbSessionFactory.closeConnection();
 
@@ -277,9 +271,6 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		
 		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,
 				OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME);
-		
-//		fac.setBatch(false);
-//		fac.setBatch(true);
 		
 		fac.doOrder();
 		

@@ -28,7 +28,7 @@ public interface OrderBuilder {
 	void service() throws  Exception;
 	
 	//读取 order 属性设置的 property ，返回PropertiesUtil
-	PropertiesUtil readProperty(String fullPropPath);
+	PropertiesUtil loadProperty(String fullPropPath);
 	//获得 property 文件的 路径
 	String getPropFullPath();
 	
