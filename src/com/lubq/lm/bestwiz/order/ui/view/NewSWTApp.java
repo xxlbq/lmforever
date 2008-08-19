@@ -7,6 +7,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -35,10 +36,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label side_label;
-	private Text side_text;
+	private Combo side_combo;
+	private Combo currencyPair_combo;
 	private Text text1;
 	private Label orderBatchSize_label;
-	private Text currencyPair_text;
 	private Label customerId_label;
 	private Label currencyPair_label;
 	private Group group2;
@@ -116,18 +117,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						currencyPair_label.setBounds(8, 18, 70, 15);
 					}
 					{
-						currencyPair_text = new Text(group2, SWT.NONE);
-						currencyPair_text.setBounds(91, 19, 56, 14);
-					}
-					{
 						side_label = new Label(group2, SWT.NONE);
 						side_label.setText("side :");
 						side_label.setBounds(7, 49, 63, 15);
 						side_label.setSize(70, 15);
-					}
-					{
-						side_text = new Text(group2, SWT.NONE);
-						side_text.setBounds(91, 49, 56, 14);
 					}
 					{
 						orderBatchSize_label = new Label(group2, SWT.NONE);
@@ -137,6 +130,17 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					{
 						text1 = new Text(group2, SWT.NONE);
 						text1.setBounds(91, 82, 56, 14);
+					}
+					{
+						currencyPair_combo = new Combo(group2, SWT.NONE);
+						currencyPair_combo.setText("combo1");
+						currencyPair_combo.setBounds(91, 14, 63, 21);
+					}
+					{
+						side_combo = new Combo(group2, SWT.NONE);
+						side_combo.setBounds(91, 42, 63, 21);
+						side_combo.setItems(new java.lang.String[] {"买","卖"});
+//						side_combo.set
 					}
 				}
 			}
