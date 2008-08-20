@@ -1,0 +1,39 @@
+					
+			    	ProgressMonitorDialog pmd = new ProgressMonitorDialog(this.getShell());
+//			    	pmd.
+					IRunnableWithProgress irwp = new IRunnableWithProgress() {
+						public void run(IProgressMonitor monitor)
+								throws InvocationTargetException, InterruptedException {
+
+							monitor.beginTask("begin task...", 100);
+							monitor.setTaskName("searching data..."); 
+							
+							if (monitor.isCanceled()) {
+								System.out.println("monitor.isCanceled() ...");
+								throw new InterruptedException();
+							} else {
+								monitor.worked(5);
+							} 
+
+							
+							Display.getDefault().syncExec(new Runnable() {
+								public void run() {
+									try {
+										Thread.sleep(3000);
+										System.out.println("aa  cc  d");
+										Thread.sleep(3000);
+										Thread.sleep(3000);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							}); 
+							monitor.done();
+						}
+					}; 
+					try {
+						pmd.run(true, true, irwp);
+						
+					} catch (Exception e) {
+					} 

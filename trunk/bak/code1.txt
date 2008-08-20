@@ -1,0 +1,43 @@
+
+combo 的 自定义
+
+
+combo 可以的 ,给你两个静态使用的方法
+注意: Column 是自己定义的一个类(自己增加get set 方法)
+public class Column {
+        private String label;
+        private String value;
+....
+}
+
+
+        /**
+         * 设置数据源(静态使用)
+         * 
+         * @param combo
+         *            //控件
+         * @param ds
+         *            是一个Column 的 List //数据源
+         */
+        public static void setDataSource(Combo combo, List ds) {
+                // Column col = null;
+                String[] str = new String[ds.size()];
+                for (int i = 0; i < ds.size(); i++) {
+                        str[i] = ((Column) ds.get(i)).getLabel();
+                        combo.setData(str[i], ((Column) ds.get(i)).getValue());
+                }
+                combo.setItems(str);
+        };
+
+        /**
+         * 返回当前选中的变量
+         * 
+         * @param combo
+         * @return
+         */
+        public static String getSelectedValue(Combo combo) {
+                if (combo.getData(combo.getText()) != null)
+                        return combo.getData(combo.getText()).toString();
+                else
+                        return "";
+        }  
