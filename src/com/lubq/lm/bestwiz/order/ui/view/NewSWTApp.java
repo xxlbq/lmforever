@@ -1,7 +1,14 @@
 package com.lubq.lm.bestwiz.order.ui.view;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressIndicator;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -14,11 +21,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.cloudgarden.resource.SWTResourceManager;
-
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -35,10 +42,16 @@ import com.cloudgarden.resource.SWTResourceManager;
 public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
+	private ProgressBar order_progressBar;
+	private Label process_label;
+	private Combo mode_combo;
+	private Label mode_label;
 	private Label side_label;
+	private Combo orderBatchSize;
+	private Combo isBatch_combo;
+	private Label isBatch_label;
 	private Combo side_combo;
 	private Combo currencyPair_combo;
-	private Text text1;
 	private Label orderBatchSize_label;
 	private Label customerId_label;
 	private Label currencyPair_label;
@@ -74,7 +87,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	*/
 	private void initGUI() {
 		try {
-			this.setSize(728, 474);
+			this.setSize(801, 777);
 			this.setBackground(SWTResourceManager.getColor(192, 192, 192));
 			GridLayout thisLayout = new GridLayout(1, true);
 			thisLayout.marginWidth = 5;
@@ -87,8 +100,8 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			{
 				composite1 = new Composite(this, SWT.NONE);
 				GridData composite1LData = new GridData();
-				composite1LData.widthHint = 707;
-				composite1LData.heightHint = 378;
+				composite1LData.widthHint = 721;
+				composite1LData.heightHint = 630;
 				composite1.setLayoutData(composite1LData);
 				composite1.setLayout(null);
 				{
@@ -119,29 +132,103 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					{
 						side_label = new Label(group2, SWT.NONE);
 						side_label.setText("side :");
-						side_label.setBounds(7, 49, 63, 15);
-						side_label.setSize(70, 15);
+						side_label.setBounds(7, 48, 63, 15);
 					}
 					{
 						orderBatchSize_label = new Label(group2, SWT.NONE);
 						orderBatchSize_label.setText("order batch size :");
-						orderBatchSize_label.setBounds(7, 81, 84, 14);
-					}
-					{
-						text1 = new Text(group2, SWT.NONE);
-						text1.setBounds(91, 82, 56, 14);
+						orderBatchSize_label.setBounds(238, 77, 84, 14);
 					}
 					{
 						currencyPair_combo = new Combo(group2, SWT.NONE);
-						currencyPair_combo.setText("combo1");
 						currencyPair_combo.setBounds(91, 14, 63, 21);
+						currencyPair_combo.add("USD/JPY", 0);
+						currencyPair_combo.add("EUR/JPY", 1);
+						currencyPair_combo.add("EUR/USD", 2);
+						currencyPair_combo.add("AUD/USD", 3);
+						
+						currencyPair_combo.select(0);
 					}
 					{
-						side_combo = new Combo(group2, SWT.NONE);
-						side_combo.setBounds(91, 42, 63, 21);
-						side_combo.setItems(new java.lang.String[] {"买","卖"});
+
+						side_combo = new Combo(group2, SWT.SINGLE | SWT.BORDER|SWT.READ_ONLY);
+						side_combo.setBounds(91, 44, 63, 21);
+						side_combo.add("买", 0);
+						side_combo.add("卖", 1);
+						side_combo.select(0);
 //						side_combo.set
 					}
+					{
+						orderBatchSize = new Combo(group2, SWT.NONE);
+						orderBatchSize.setBounds(322, 70, 63, 21);
+						orderBatchSize.add("1", 0);
+						orderBatchSize.add("10", 1);
+						orderBatchSize.add("20", 2);
+						orderBatchSize.add("30", 3);
+						orderBatchSize.add("40", 4);
+						orderBatchSize.add("50", 5);
+						orderBatchSize.add("60", 6);
+						orderBatchSize.add("70", 7);
+						orderBatchSize.add("80", 8);
+						orderBatchSize.add("90", 9);
+						orderBatchSize.add("100", 10);
+						
+						orderBatchSize.select(0);
+					}
+					{
+						isBatch_label = new Label(group2, SWT.NONE);
+						isBatch_label.setText("is batch order :");
+						isBatch_label.setBounds(7, 78, 77, 14);
+					}
+					{
+						isBatch_combo = new Combo(group2, SWT.DROP_DOWN);
+						isBatch_combo.setBounds(91, 74, 63, 21);
+						
+						isBatch_combo.add("false", 0);
+						isBatch_combo.add("true", 1);
+					}
+					{
+						mode_label = new Label(group2, SWT.NONE);
+						mode_label.setText("mode :");
+						mode_label.setBounds(7, 108, 63, 14);
+					}
+					{
+						mode_combo = new Combo(group2, SWT.READ_ONLY);
+						mode_combo.setBounds(91, 104, 63, 21);
+						mode_combo.add("normal",0);
+						mode_combo.add("stay pos",1);
+						mode_combo.add("manual",2);
+						
+						
+						
+						mode_combo.addSelectionListener(new SelectionAdapter( ) {
+				            public void widgetSelected(SelectionEvent e) {
+				            	
+				            	System.out.println("mode selected text :"+mode_combo.getText());
+				            	System.out.println("mode selected value:"+mode_combo.getSelectionIndex());
+				            	
+				            }
+				        });
+
+						
+						
+					}
+				}
+				{
+					process_label = new Label(composite1, SWT.NONE);
+					process_label.setText("processing ... ");
+					process_label.setBounds(7, 588, 63, 14);
+				}
+				{
+					order_progressBar = new ProgressBar(composite1, SWT.HORIZONTAL | SWT.SMOOTH);
+					order_progressBar.setBounds(7, 609, 539, 14);
+					order_progressBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+					order_progressBar.setMinimum(0);
+					order_progressBar.setMaximum(30);
+					
+					new LongRunningOperation(display, pb1).start();
+
+					
 				}
 			}
 			{
@@ -217,10 +304,57 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			shell.setSize(shellBounds.width, shellBounds.height);
 		}
 		shell.open();
+		
+		
+		
+//		Display.getCurrent(display.asyncExec(new Runnable() {
+//			public void run() {
+//			//Inform the indicator that some amount of work has been done
+//			indicator.worked(1);
+//			}
+//			}));
+//
+//		
+		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
+		
+		
+		
 	}
+
+	
+	
+	/**
+	 * This class simulates a long-running operation
+	 */
+	class LongRunningOperation extends Thread {
+	  private Display display;
+	  private ProgressBar progressBar;
+
+	  public LongRunningOperation(Display display, ProgressBar progressBar) {
+	    this.display = display;
+	    this.progressBar = progressBar;
+	  }
+	  public void run() {
+	    // Perform work here--this operation just sleeps
+	    for (int i = 0; i < 30; i++) {
+	      try {
+	        Thread.sleep(1000);
+	      } catch (InterruptedException e) {
+	        // Do nothing
+	      }
+	      display.asyncExec(new Runnable() {
+	        public void run() {
+	          if (progressBar.isDisposed()) return;
+
+	          // Increment the progress bar
+	          progressBar.setSelection(progressBar.getSelection() + 1);
+	        }
+	      });
+	    }
+	  }
 
 }

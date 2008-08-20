@@ -1,0 +1,24 @@
+ 状态栏里的进度条 
+ 
+				try { 
+					ModalContext.run(new IRunnableWithProgress() { 
+ 
+						public void run(IProgressMonitor monitor) 
+								throws InvocationTargetException, 
+								InterruptedException { 
+							monitor.beginTask("开始执行任务", 
+									IProgressMonitor.UNKNOWN); 
+							Thread.sleep(10000); 
+							monitor.done(); 
+						} 
+ 
+					}, true, Test.getApp().getStatusLineManager() 
+							.getProgressMonitor(), Test.getApp().getShell() 
+							.getDisplay()); 
+					getStatusLineManager().setMessage( 
+							"sdfsdddddddddddddddddddddddddddddddddddddddddd"); 
+				} catch (InvocationTargetException e1) { 
+					e1.printStackTrace(); 
+				} catch (InterruptedException e1) { 
+					e1.printStackTrace(); 
+				} 

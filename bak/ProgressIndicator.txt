@@ -1,0 +1,123 @@
+1 /*******************************************************************************
+2  * Copyright (c) 2000, 2006 IBM Corporation and others.
+3  * All rights reserved. This program and the accompanying materials
+4  * are made available under the terms of the Eclipse Public License v1.0
+5  * which accompanies this distribution, and is available at
+6  * http://www.eclipse.org/legal/epl-v10.html
+7  *
+8  * Contributors:
+9  * IBM Corporation - initial API and implementation
+10  *******************************************************************************/
+11 package org.eclipse.jface.dialogs;
+12 
+13 import org.eclipse.swt.SWT;
+14 import org.eclipse.swt.custom.StackLayout;
+15 import org.eclipse.swt.widgets.Composite;
+16 import org.eclipse.swt.widgets.ProgressBar;
+17 
+18 /**
+19  * A control for showing progress feedback for a long running operation. This
+20  * control supports both determinate and indeterminate SWT progress bars. For
+21  * indeterminate progress, we don't have to know the total amount of work in
+22  * advance and no <code>worked</code> method needs to be called.
+23  */
+24 public class ProgressIndicator extends Composite {
+25     private final static int PROGRESS_MAX = 1000; // value to use for max in
+26 
+27     // progress bar
+28 private boolean animated = true;
+29 
+30     private StackLayout layout;
+31 
+32     private ProgressBar determinateProgressBar;
+33 
+34     private ProgressBar indeterminateProgressBar;
+35 
+36     private double totalWork;
+37 
+38     private double sumWorked;
+39 
+40     /**
+41      * Create a ProgressIndicator as a child under the given parent.
+42      * 
+43      * @param parent
+44      * The widgets parent
+45      */
+46     public ProgressIndicator(Composite parent) {
+47         super(parent, SWT.NULL);
+48         determinateProgressBar = new ProgressBar(this, SWT.HORIZONTAL);
+49         indeterminateProgressBar = new ProgressBar(this, SWT.HORIZONTAL
+50                 | SWT.INDETERMINATE);
+51         layout = new StackLayout();
+52         setLayout(layout);
+53     }
+54 
+55     /**
+56      * Initialize the progress bar to be animated.
+57      */
+58     public void beginAnimatedTask() {
+59         done();
+60         layout.topControl = indeterminateProgressBar;
+61         layout();
+62         animated = true;
+63     }
+64 
+65     /**
+66      * Initialize the progress bar.
+67      * 
+68      * @param max
+69      * The maximum value.
+70      */
+71     public void beginTask(int max) {
+72         done();
+73         this.totalWork = max;
+74         this.sumWorked = 0;
+75         determinateProgressBar.setMinimum(0);
+76         determinateProgressBar.setMaximum(PROGRESS_MAX);
+77         determinateProgressBar.setSelection(0);
+78         layout.topControl = determinateProgressBar;
+79         layout();
+80         animated = false;
+81     }
+82 
+83     /**
+84      * Progress is done.
+85      */
+86     public void done() {
+87         if (!animated) {
+88             determinateProgressBar.setMinimum(0);
+89             determinateProgressBar.setMaximum(0);
+90             determinateProgressBar.setSelection(0);
+91         }
+92         layout.topControl = null;
+93         layout();
+94     }
+95 
+96     /**
+97      * Moves the progress indicator to the end.
+98      */
+99     public void sendRemainingWork() {
+100         worked(totalWork - sumWorked);
+101     }
+102 
+103     /**
+104      * Moves the progress indicator by the given amount of work units
+105      * @param work the amount of work to increment by.
+106      */
+107     public void worked(double work) {
+108         if (work == 0 || animated) {
+109             return;
+110         }
+111         sumWorked += work;
+112         if (sumWorked > totalWork) {
+113             sumWorked = totalWork;
+114         }
+115         if (sumWorked < 0) {
+116             sumWorked = 0;
+117         }
+118         int value = (int) (sumWorked / totalWork * PROGRESS_MAX);
+119         if (determinateProgressBar.getSelection() < value) {
+120             determinateProgressBar.setSelection(value);
+121         }
+122     }
+123 }
