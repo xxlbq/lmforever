@@ -13,6 +13,7 @@ import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
 import com.lm.common.util.prop.PropertiesUtil;
+import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 
 public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
@@ -29,6 +30,14 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		
 	}
 	
+
+
+
+	public OrderBuilderMessageVender getOrderBuilderMessageVender() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 
 

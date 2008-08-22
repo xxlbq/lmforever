@@ -17,7 +17,7 @@ import com.lm.common.util.prop.PropertiesUtil;
 
 public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
-	private PropertiesUtil propUtil;
+//	private PropertiesUtil propUtil;
 	
 //	private boolean isBatch;
 //	
@@ -75,7 +75,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
 	public void doOrder() throws Exception{
 		
-		propUtil = loadProperty(getPropFullPath());
+//		propUtil = loadProperty(getPropFullPath());
 		
 		initOrder();
 		service();
@@ -174,13 +174,13 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 //		return getPropUtil().getPropFullPath();
 //	}
 	
-	public String getCustomerId() {
-		return propUtil.getStringValue("customerId");
-	}
+//	public String getCustomerId() {
+//		return propUtil.getStringValue("customerId");
+//	}
 
-	public List<String> getCustomerIdList() {
-		return propUtil.getStringListValue("customerId.list");
-	}
+//	public List<String> getCustomerIdList() {
+//		return propUtil.getStringListValue("customerId.list");
+//	}
 	
 	
 	
@@ -194,13 +194,13 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
 	
 	
-	protected int getOrderBindListSize() {
-		return getPropUtil().getIntValue("orderBindListSize");
-	}
-	
-	protected int getBatchSize(){
-		return getPropUtil().getIntValue("orderBatchSize");
-	}
+//	protected int getOrderBindListSize() {
+//		return getPropUtil().getIntValue("orderBindListSize");
+//	}
+//	
+//	protected int getBatchSize(){
+//		return getPropUtil().getIntValue("orderBatchSize");
+//	}
 	
 	
 
@@ -223,7 +223,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		bindInfo.setCustomerId(order.getCustomerId());
 		bindInfo.setAmount(order.getOrderAmount());
 		bindInfo.setSide(order.getSide().intValue());
-		bindInfo.setMode(getPropUtil().getIntValue("mode"));
+		bindInfo.setMode(getOrderBuilderMessageVender().getMode());
 		
 		if(order.getSide().intValue() == 1){
 			bindInfo.setTradeAskPrice(order.getOrderPrice());
@@ -259,7 +259,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		bindInfo.setProductId(order.getProductId());
 		bindInfo.setCustomerId(order.getCustomerId());
 		bindInfo.setSide(order.getSide().intValue());
-		bindInfo.setMode(getPropUtil().getIntValue("mode"));
+		bindInfo.setMode(getOrderBuilderMessageVender().getMode());
 		
 		if(order.getSide().intValue() == 1){
 			bindInfo.setTradeAskPrice(order.getOrderPrice());
@@ -281,14 +281,14 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		
 	}
 	
-	public PropertiesUtil getPropUtil() {
-		return this.propUtil;
-	}
-
-
-	public void setPropUtil(PropertiesUtil propUtil) {
-		this.propUtil = propUtil;
-	}
+//	public PropertiesUtil getPropUtil() {
+//		return this.propUtil;
+//	}
+//
+//
+//	public void setPropUtil(PropertiesUtil propUtil) {
+//		this.propUtil = propUtil;
+//	}
 
 
 //	public int getMode() {

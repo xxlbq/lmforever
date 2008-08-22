@@ -18,6 +18,8 @@ import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
 import com.lm.common.util.prop.PropertiesUtil;
+import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
+import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 
 
@@ -31,25 +33,27 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	private List<OrderBindInfo> bindInfoList = null;
 
-	private String propFullPath;
+//	private String propFullPath;
 	
+	private OrderBuilderMessageVender orderMessageVender;
 	
-	public OrderBuilderInstantFactory(SimpleSender sender,String fullPropPath) {
+	public OrderBuilderInstantFactory(SimpleSender sender,OrderBuilderMessageVender orderVender) {
 		this.orderRequestSender = sender;
-		System.out.println("instants order fullPropPath:"+fullPropPath);
-		this.propFullPath = fullPropPath;
+		this.orderMessageVender = orderVender;
+//		System.out.println("instants order fullPropPath:"+fullPropPath);
+//		this.propFullPath = fullPropPath;
 	}
 	
 	
-	public PropertiesUtil loadProperty(String fullPropPath){
-		return new PropertiesUtil(fullPropPath);
-	}
-
-	
-	
-	public String getPropFullPath() {
-		return this.propFullPath;
-	}
+//	public PropertiesUtil loadProperty(String fullPropPath){
+//		return new PropertiesUtil(fullPropPath);
+//	}
+//
+//	
+//	
+//	public String getPropFullPath() {
+//		return this.propFullPath;
+//	}
 
 
 	
@@ -90,7 +94,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	public void finishOrder() throws JMSException {
 		
-		if(getPropUtil().getBooleanValue("isBatch")){
+		if(getOrderBuilderMessageVender().isDoBatch()){
 			System.out.println("Multi bind info sending ...");
 			afterMultiInstantsOrder(bindInfoList);
 			System.out.println("Multi bind info send over .");
@@ -105,13 +109,13 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	public void service() throws Exception {
 
-		System.out.println("isBatch:"+getPropUtil().getBooleanValue("isBatch"));
+		System.out.println("isBatch:"+getOrderBuilderMessageVender().isDoBatch());
 		
-		if ( ! getPropUtil().getBooleanValue("isBatch")) {
+		if ( ! orderMessageVender.isDoBatch()) {
+			
 			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
-			JhfAliveOrder order = createOrder(getCustomerId());
-
+			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId());
 			String orderbindId = IdGenerateFacade.getOrderBindId();
 			JhfOrderBind bind = createOrderBind(orderbindId, order.getId().getOrderId(), order.getId().getTradeId());
 
@@ -135,11 +139,11 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 
 			bindInfoList = new ArrayList<OrderBindInfo>();
 			// 多个customerId
-			List<String> customerIdList = getCustomerIdList();
+			List<String> customerIdList = orderMessageVender.getCustomerIdList();
 
 			for (String cstId : customerIdList) {
 
-				for (int bindi = 0; bindi < getOrderBindListSize(); bindi++) {
+				for (int bindi = 0; bindi < orderMessageVender.getOrderBindBatchSize(); bindi++) {
 
 					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
@@ -148,7 +152,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 					// 生成orderBindId ，一个bindId，对应多个orderId
 					String orderbindId = IdGenerateFacade.getOrderBindId();
 
-					for (int i = 0; i < getBatchSize(); i++) {
+					for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
 						// 创建order对象，并添加到orderList中
 						JhfAliveOrder order = createOrder(cstId);
 						orderList.add(order);
@@ -210,21 +214,21 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		id.setTradeId(IdGenerateFacade.getTradeId());
 		order.setId(id);
 		
-		order.setOrderAmount(new BigDecimal(getPropUtil().getStringValue("instants.order.amount")));
+		order.setOrderAmount(orderMessageVender.getAmount());
 		
 		order.setCustomerId(customer);
 		
-		order.setCurrencyPair(getPropUtil().getStringValue("currencyPair"));
+		order.setCurrencyPair(orderMessageVender.getCurrencyPair());
 		order.setExecutionPrice(new BigDecimal(executionPriceStr));
 		order.setExecutionType(new BigDecimal(executionTypeStr));
 		order.setActiveFlag(BigDecimal.ONE);
-		order.setOrderPrice(new BigDecimal(getPropUtil().getStringValue("instants.order.orderPrice")));
+		order.setOrderPrice(orderMessageVender.getOrderPrice());
 		order.setRevisionNumber(1);
 		order.setOrderStatus(new BigDecimal(orderStatuStr));
-		order.setSlippage(new BigDecimal(getPropUtil().getStringValue("instants.order.Slippage")));
+		order.setSlippage(orderMessageVender.getSlippage());
 		order.setOrderType(new BigDecimal(orderTypeStr));
-		order.setSide(new BigDecimal(getPropUtil().getStringValue("side")));
-		order.setCustomerOrderNo(IdGenerateFacade.obtainCustomerOrderNo(getPropUtil().getStringValue("customerId")));
+		order.setSide(new BigDecimal(String.valueOf( orderMessageVender.getSide() )));
+		order.setCustomerOrderNo(IdGenerateFacade.obtainCustomerOrderNo(orderMessageVender.getCustomerId()));
 		
 
 		// < ===========
@@ -264,13 +268,23 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		return order;
 	}
 
+	
+	
+	
+
+	public OrderBuilderMessageVender getOrderBuilderMessageVender() {
+		
+		return this.orderMessageVender;
+	}
+
 
 	public static void main(String[] args) throws Exception {
 		
 		SimpleSender sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
 		
-		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,
-				OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME);
+		String fullPropertyPath = OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME;
+		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(fullPropertyPath);
+		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
 		
 		fac.doOrder();
 		
