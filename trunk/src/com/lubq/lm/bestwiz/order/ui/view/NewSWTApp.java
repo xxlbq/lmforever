@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -58,6 +59,8 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
+	private List customerIdlist_list;
+	private Label customerIdList_label;
 	private Combo bindBatchSize_combo;
 	private Button cancel_button;
 	private Button doOrder_button;
@@ -159,7 +162,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					group1 = new Group(composite1, SWT.NONE);
 					group1.setLayout(null);
 					group1.setText("customer info");
-					group1.setBounds(21, 21, 224, 70);
+					group1.setBounds(21, 21, 644, 70);
 					{
 						customerId_text = new Text(group1, SWT.NONE);
 						customerId_text.setBounds(77, 21, 56, 14);
@@ -169,6 +172,15 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						customerId_label = new Label(group1, SWT.NONE);
 						customerId_label.setText("customer id :");
 						customerId_label.setBounds(8, 21, 63, 15);
+					}
+					{
+						customerIdList_label = new Label(group1, SWT.NONE);
+						customerIdList_label.setText("customer id List :");
+						customerIdList_label.setBounds(180, 21, 84, 15);
+					}
+					{
+						customerIdlist_list = new List(group1, SWT.NONE);
+						customerIdlist_list.setBounds(273, 14, 66, 49);
 					}
 				}
 				{
@@ -705,8 +717,20 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		this.customerId_text = customerId_text;
 	}
 	
-	
-	
-	
-	
+	public List getCustomerIdlist_list() {
+		return customerIdlist_list;
+	}
+
+	public Combo getBindBatchSize_combo() {
+		return bindBatchSize_combo;
+	}
+
+	public void setBindBatchSize_combo(Combo bindBatchSize_combo) {
+		this.bindBatchSize_combo = bindBatchSize_combo;
+	}
+
+	public void setCustomerIdlist_list(List customerIdlist_list) {
+		this.customerIdlist_list = customerIdlist_list;
+	}
+
 }
