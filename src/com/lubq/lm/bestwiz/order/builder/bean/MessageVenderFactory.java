@@ -46,7 +46,16 @@ public class MessageVenderFactory {
 		String 	currencyPair = app.getCurrencyPair_combo().getText();
 		int 	sideIndex 	= app.getSide_combo().getSelectionIndex();
 		int     orderBatchSize = Integer.parseInt( app.getOrderBatchSize_combo().getText() );
-		int     orderBindBatchSize = Integer.parseInt( app.getOrder.getText() );
+//		int     orderBindBatchSize = Integer.parseInt( app.getOrder.getText() );
+		boolean isBatch = Boolean.valueOf( app.getIsBatch_combo().getText() );
+		int  	mode = app.getMode_combo().getSelectionIndex();
+		BigDecimal orderPrice = new BigDecimal( app.getOrderPrice_text().getText() );
+		BigDecimal orderAmount = new BigDecimal(app.getOrderAmount_combo().getText());
+		
+		BigDecimal slippage = new BigDecimal(app.getSlippage_combo().getText());
+		int executionType = app.getExecutionType_combo().get
+		
+		
 		
 		
 		orderVender.setCustomerId(cId);
@@ -55,12 +64,12 @@ public class MessageVenderFactory {
 		orderVender.setCurrencyPair(currencyPair);
 		orderVender.setSide(ComboConstants.sideArr[sideIndex]);
 		orderVender.setOrderBatchSize(orderBatchSize);
-		orderVender.setOrderBindBatchSize(propUtil.getIntValue("orderBindListSize"));
-		orderVender.setDoBatch(propUtil.getBooleanValue("doBatch"));
-		orderVender.setMode(propUtil.getIntValue("mode"));
-		orderVender.setOrderPrice( new BigDecimal( propUtil.getStringValue("orderPrice") ) );
-		orderVender.setAmount(new BigDecimal( propUtil.getStringValue("amount")));
-		orderVender.setSlippage(new BigDecimal (propUtil.getStringValue("slippage")));
+//		orderVender.setOrderBindBatchSize(propUtil.getIntValue("orderBindListSize"));
+		orderVender.setDoBatch(isBatch);
+		orderVender.setMode(mode);
+		orderVender.setOrderPrice(orderPrice);
+		orderVender.setAmount(orderAmount);
+		orderVender.setSlippage(slippage);
 		orderVender.setExecutionType( propUtil.getIntValue("executionType") );
 		
 		return orderVender;
