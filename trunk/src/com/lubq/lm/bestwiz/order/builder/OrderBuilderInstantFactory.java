@@ -27,19 +27,18 @@ import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 
 public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	//成行注文需要发送 jms 给trader
-	private SimpleSender orderRequestSender = null;
+	private SimpleSender orderRequestSender 			= null;
+	private OrderBindInfo singleBindInfo 				= null;
+	private List<OrderBindInfo> bindInfoList 			= null;
+	private OrderBuilderMessageVender orderMessageVender= null;
 	
-	private OrderBindInfo singleBindInfo = null;
-	
-	private List<OrderBindInfo> bindInfoList = null;
-
-//	private String propFullPath;
-	
-	private OrderBuilderMessageVender orderMessageVender;
 	
 	public OrderBuilderInstantFactory(SimpleSender sender,OrderBuilderMessageVender orderVender) {
 		this.orderRequestSender = sender;
 		this.orderMessageVender = orderVender;
+		
+		System.out.println(orderVender.toString());
+		
 //		System.out.println("instants order fullPropPath:"+fullPropPath);
 //		this.propFullPath = fullPropPath;
 	}
@@ -278,6 +277,18 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	}
 
 
+	
+	
+//	public static void main(String[] args) {
+//		String testpath = OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME;
+//		System.out.println("==>:"+testpath);
+//		PropertiesUtil pu = new PropertiesUtil(testpath);
+//		pu.load();
+//		System.out.println(pu.getStringValue("currencyPair"));
+//	}
+	
+	
+
 	public static void main(String[] args) throws Exception {
 		
 		SimpleSender sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
@@ -291,14 +302,5 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		sender.close();
 		System.exit(0);
 	}
-	
-	
-//	public static void main(String[] args) {
-//		String testpath = OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME;
-//		System.out.println("==>:"+testpath);
-//		PropertiesUtil pu = new PropertiesUtil(testpath);
-//		pu.load();
-//		System.out.println(pu.getStringValue("currencyPair"));
-//	}
 }
 

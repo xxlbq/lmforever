@@ -320,16 +320,16 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						
 						
 						orderAmount_combo.add("请自定义输入",0);
-						orderAmount_combo.add("1 Lot",1);
-						orderAmount_combo.add("2 Lot",2);
-						orderAmount_combo.add("3 Lot",3);
-						orderAmount_combo.add("4 Lot",4);
-						orderAmount_combo.add("5 Lot",5);
-						orderAmount_combo.add("6 Lot",6);
-						orderAmount_combo.add("7 Lot",7);
-						orderAmount_combo.add("8 Lot",8);
-						orderAmount_combo.add("9 Lot",9);
-						orderAmount_combo.add("10 Lot",10);
+						orderAmount_combo.add("10000",1);
+						orderAmount_combo.add("20000",2);
+						orderAmount_combo.add("30000",3);
+						orderAmount_combo.add("40000",4);
+						orderAmount_combo.add("50000",5);
+						orderAmount_combo.add("60000",6);
+						orderAmount_combo.add("70000",7);
+						orderAmount_combo.add("80000",8);
+						orderAmount_combo.add("90000t",9);
+						orderAmount_combo.add("100000",10);
 						
 						orderAmount_combo.select(1);
 	
