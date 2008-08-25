@@ -2,6 +2,8 @@ package com.lubq.lm.bestwiz.order.builder;
 
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +25,11 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 //	
 //	int mode = 1 ;
 
+	private static Object lock = new Object();
+	private static final String ORDER_PREFIX = "LUBQ";
+	private static int ORDER_NUMBER = 1;
+	
+	private static DecimalFormat df = new DecimalFormat("0000000");
 	
 	/**  void initOrder();  **/
 	/**  JhfAliveOrder createOrder(String customer) throws IdGenerateException;  **/
@@ -281,24 +288,26 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		
 	}
 	
-//	public PropertiesUtil getPropUtil() {
-//		return this.propUtil;
+	public static  String  createOrderId(String customer){
+		
+		StringBuffer orderId = new StringBuffer(customer);
+		orderId.append(ORDER_PREFIX);
+		orderId.append(df.format(ORDER_NUMBER));
+		
+		synchronized (lock) {
+			ORDER_NUMBER ++ ;
+		}
+		
+		return orderId.toString();
+	}
+	
+	
+//	public static void main(String[] args) {
+//		
+//		for (int i = 0; i < 5000; i++) {
+//			System.out.println(createOrderId("00000101"));
+//		}
+//		
 //	}
-//
-//
-//	public void setPropUtil(PropertiesUtil propUtil) {
-//		this.propUtil = propUtil;
-//	}
-
-
-//	public int getMode() {
-//		return mode;
-//	}
-//
-//
-//	public void setMode(int mode) {
-//		this.mode = mode;
-//	}
-
 	
 }
