@@ -1,4 +1,4 @@
-package com.cloudgarden.resource;
+package com.lubq.lm.util;
 
 import java.util.HashMap;
 import java.util.Iterator;
