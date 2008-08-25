@@ -1,4 +1,4 @@
-package resources;
+package com.lubq.lm.bestwiz.order.ui.resources;
 
 /**
  * ポジションの分解用（Split計算機能－通貨組合せ式）

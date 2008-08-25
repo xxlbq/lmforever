@@ -1,4 +1,4 @@
-package resources;
+package com.lubq.lm.bestwiz.order.ui.resources;
 
 /**
  * booking View リソースクラス

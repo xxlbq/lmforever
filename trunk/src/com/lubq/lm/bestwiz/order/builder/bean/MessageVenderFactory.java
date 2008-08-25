@@ -2,6 +2,7 @@ package com.lubq.lm.bestwiz.order.builder.bean;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -46,7 +47,7 @@ public class MessageVenderFactory {
 		OrderBuilderMessageVender orderVender = new OrderBuilderMessageVender();
 		
 		String 	cId 	= app.getCustomerId_text().getText();
-		List<String> cIdList = new ArrayList<String>(). app.getCustomerIdlist_list().getItems();
+		List<String> cIdList = Arrays.asList(app.getCustomerIdlist_list().getItems());
 		String 	currencyPair = app.getCurrencyPair_combo().getText();
 		int 	sideIndex 	= app.getSide_combo().getSelectionIndex();
 		int     orderBatchSize = Integer.parseInt( app.getOrderBatchSize_combo().getText() );
@@ -60,10 +61,10 @@ public class MessageVenderFactory {
 		int executionTypeIndex = app.getExecutionType_combo().getSelectionIndex();
 		
 		
-		CollectionUtils.
+
 		
 		orderVender.setCustomerId(cId);
-//		orderVender.setCustomerIdList(propUtil.getStringListValue("customerId.list"));
+		orderVender.setCustomerIdList(cIdList);
 		
 		orderVender.setCurrencyPair(currencyPair);
 		orderVender.setSide(ComboConstants.sideArr[sideIndex]);

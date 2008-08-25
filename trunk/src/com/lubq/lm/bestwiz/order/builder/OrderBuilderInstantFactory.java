@@ -32,6 +32,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	private List<OrderBindInfo> bindInfoList 			= null;
 	private OrderBuilderMessageVender orderMessageVender= null;
 	
+
 	
 	public OrderBuilderInstantFactory(SimpleSender sender,OrderBuilderMessageVender orderVender) {
 		this.orderRequestSender = sender;
@@ -196,21 +197,23 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	public   JhfAliveOrder getInstantsOrder(String customer) throws IdGenerateException{
 		
 //		String orderPriceStr = "200.10";
-		String executionPriceStr = "100.00";
+//		String executionPriceStr = "100.00";
 		String boardRateStr = "100.00";
-		String tradePriceStr = executionPriceStr;
+//		String tradePriceStr = executionPriceStr;
 		String tradeTypeStr = "0";
 		String orderStatuStr = "1";
 		String orderTypeStr = "0";
-		String executionTypeStr = "12";
+
 		
 		JhfAliveOrder order  = new JhfAliveOrder();
 		
 		//  ===========> 
 		JhfAliveOrderId id = new JhfAliveOrderId();
 		
-		id.setOrderId(IdGenerateFacade.getOrderId());
+//		id.setOrderId(IdGenerateFacade.getOrderId());
+		id.setOrderId(createOrderId(customer));
 		id.setTradeId(IdGenerateFacade.getTradeId());
+		
 		order.setId(id);
 		
 		order.setOrderAmount(orderMessageVender.getAmount());
@@ -218,8 +221,8 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		order.setCustomerId(customer);
 		
 		order.setCurrencyPair(orderMessageVender.getCurrencyPair());
-		order.setExecutionPrice(new BigDecimal(executionPriceStr));
-		order.setExecutionType(new BigDecimal(executionTypeStr));
+//		order.setExecutionPrice(new BigDecimal(executionPriceStr));
+		order.setExecutionType(new BigDecimal(String.valueOf(orderMessageVender.getExecutionType())));
 		order.setActiveFlag(BigDecimal.ONE);
 		order.setOrderPrice(orderMessageVender.getOrderPrice());
 		order.setRevisionNumber(1);
@@ -245,10 +248,10 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		order.setOrderTime("123456");
 		order.setPriceId("PID007");
 		order.setProductId("A001");//USD/JPY = A001,EUR/JPY = A002	
-		order.setTradePrice(new BigDecimal(tradePriceStr));
+//		order.setTradePrice(new BigDecimal(tradePriceStr));
 		order.setInputDate(new Date());
 		order.setUpdateDate(new Date());
-		order.setUpdateStaffId("lubq");
+		order.setUpdateStaffId("[lubq]");
 		order.setOrderDatetime(new Date());
 		order.setTradeType(new BigDecimal(tradeTypeStr));
 		order.setChangeReason(new BigDecimal("1"));
@@ -289,7 +292,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception{
 		
 		SimpleSender sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
 		
