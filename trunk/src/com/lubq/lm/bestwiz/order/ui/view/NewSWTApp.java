@@ -37,11 +37,11 @@ import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
-import com.cloudgarden.resource.SWTResourceManager;
 import com.lm.common.util.number.NumberCommonUtil;
 import com.lubq.lm.bestwiz.order.builder.OrderBuilderInstantFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
+import com.lubq.lm.util.SWTResourceManager;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
