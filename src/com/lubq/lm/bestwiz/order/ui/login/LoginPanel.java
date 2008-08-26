@@ -6,6 +6,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
@@ -14,6 +15,7 @@ import org.eclipse.swt.widgets.Text;
 import com.lubq.lm.bestwiz.order.ui.cons.GlobalConstants;
 import com.lubq.lm.bestwiz.order.ui.cons.GlobalResources;
 import com.lubq.lm.bestwiz.order.ui.cons.LoginResourceName;
+import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
 import com.lubq.lm.util.ResourceUtil;
 import com.lubq.lm.util.SWTResourceManager;
 import com.lubq.lm.util.WidgetUtil;
@@ -336,7 +338,19 @@ public class LoginPanel extends Composite {
 //                                    e.printStackTrace();
 //                                    MailSender.sendMail(e);
 //                                }
-                                ((Shell) getParent()).close();
+                            
+                            Shell mainShell = new Shell();
+                            NewSWTApp inst = new NewSWTApp(mainShell, SWT.NULL);
+                            inst.pack();
+                            mainShell.open();
+                            
+                            while (!mainShell.isDisposed()) {
+                                if (!Display.getDefault().readAndDispatch())
+                                    Display.getDefault().sleep();
+                            }
+                            
+                            
+                            ((Shell) getParent()).close();
 //                            }
                         }
                     });
