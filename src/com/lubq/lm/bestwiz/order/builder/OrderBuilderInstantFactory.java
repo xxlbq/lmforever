@@ -8,7 +8,6 @@ import java.util.List;
 import cn.bestwiz.jhf.core.bo.contructor.OrderBindInfoFactory;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
-import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
 import cn.bestwiz.jhf.core.dao.util.DbSessionFactory;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
@@ -17,7 +16,6 @@ import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
-import com.lm.common.util.prop.PropertiesUtil;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
@@ -29,7 +27,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	//成行注文需要发送 jms 给trader
 	private SimpleSender orderRequestSender 			= null;
 	private OrderBindInfo singleBindInfo 				= null;
-	private List<OrderBindInfo> bindInfoList 			= null;
+	private List<OrderBindInfo> muliBindInfoList 			= null;
 	private OrderBuilderMessageVender orderMessageVender= null;
 	
 
@@ -57,8 +55,8 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 
 
 	
-	public JhfAliveOrder createOrder(String customer) throws IdGenerateException {
-		return getInstantsOrder(customer);
+	public JhfAliveOrder createOrder(String customer,String orderBindId) throws IdGenerateException {
+		return getInstantsOrder(customer,orderBindId);
 	}
 
 
@@ -96,7 +94,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		
 		if(getOrderBuilderMessageVender().isDoBatch()){
 			System.out.println("Multi bind info sending ...");
-			afterMultiInstantsOrder(bindInfoList);
+			afterMultiInstantsOrder(muliBindInfoList);
 			System.out.println("Multi bind info send over .");
 		}else{
 			System.out.println("Single bind info sending ...");
@@ -107,6 +105,17 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 
 	
 	
+	
+	
+//	public OrderBindInfo createOrderBindInfo(String orderBindId,
+//			JhfAliveOrder order) {
+//		
+//		return null;
+//	}
+	
+	
+
+	
 	public void service() throws Exception {
 
 		System.out.println("isBatch:"+getOrderBuilderMessageVender().isDoBatch());
@@ -115,29 +124,29 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 			
 			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
-			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId());
 			String orderbindId = IdGenerateFacade.getOrderBindId();
-			JhfOrderBind bind = createOrderBind(orderbindId, order.getId().getOrderId(), order.getId().getTradeId());
+			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
+			singleBindInfo = buildSingleOrderBindInfo(orderbindId, order);
 
 			writeOrder(order);
 
-			if (null != bind) {
-				writeOrderBind(bind);
-			}
+//			if (null != bind) {
+//				writeOrderBind(bind);
+//			}
 
 			DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
 			DbSessionFactory.closeConnection();
 
-			if (null != bind) {
-
-				singleBindInfo = OrderBindInfoFactory.getInstance().createInfo(bind);
-				singleBindInfo = setupOrderBindInfo(singleBindInfo, order);
-
-			}
+//			if (null != bind) {
+//
+//				singleBindInfo = OrderBindInfoFactory.getInstance().createInfo(bind);
+//				singleBindInfo = setupOrderBindInfo(singleBindInfo, order);
+//
+//			}
 
 		} else {
 
-			bindInfoList = new ArrayList<OrderBindInfo>();
+//			bindInfoList = new ArrayList<OrderBindInfo>();
 			// 多个customerId
 			List<String> customerIdList = orderMessageVender.getCustomerIdList();
 
@@ -148,34 +157,33 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
 					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
-					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
+//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
 					// 生成orderBindId ，一个bindId，对应多个orderId
 					String orderbindId = IdGenerateFacade.getOrderBindId();
 
 					for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
 						// 创建order对象，并添加到orderList中
-						JhfAliveOrder order = createOrder(cstId);
+						JhfAliveOrder order = createOrder(cstId,orderbindId);
 						orderList.add(order);
 						// 创建orderBind对象，并添加到orderBindList中
-						JhfOrderBind bind = createOrderBind(orderbindId, order
-								.getId().getOrderId(), order.getId()
-								.getTradeId());
-						orderBindList.add(bind);
+//						JhfOrderBind bind = createOrderBind(orderbindId, order
+//								.getId().getOrderId(), order.getId()
+//								.getTradeId());
+//						orderBindList.add(bind);
 
 					}
 
 					// 将 order 写入db
 					writeBatchOrder(orderList);
 					// 将 orderbind 写入 db
-					writeBatchOrderBind(orderBindList);
+//					writeBatchOrderBind(orderBindList);
 
 					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
 
 					// 创建orderBindInfo对象，并添加到orderBindInfoList中
-					OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(
-							orderbindId, orderList);
+					OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId, orderList);
 
-					bindInfoList.add(bindInfo);
+					muliBindInfoList.add(bindInfo);
 				}
 
 			}
@@ -194,7 +202,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	
 	
-	public   JhfAliveOrder getInstantsOrder(String customer) throws IdGenerateException{
+	public   JhfAliveOrder getInstantsOrder(String customerId,String orderBindId) throws IdGenerateException{
 		
 //		String orderPriceStr = "200.10";
 //		String executionPriceStr = "100.00";
@@ -211,14 +219,14 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		JhfAliveOrderId id = new JhfAliveOrderId();
 		
 //		id.setOrderId(IdGenerateFacade.getOrderId());
-		id.setOrderId(createOrderId(customer));
+		id.setOrderId(createOrderId(customerId));
 		id.setTradeId(IdGenerateFacade.getTradeId());
 		
 		order.setId(id);
 		
 		order.setOrderAmount(orderMessageVender.getAmount());
 		
-		order.setCustomerId(customer);
+		order.setCustomerId(customerId);
 		
 		order.setCurrencyPair(orderMessageVender.getCurrencyPair());
 //		order.setExecutionPrice(new BigDecimal(executionPriceStr));
@@ -242,7 +250,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		order.setInputStaffId("lubq");
 		order.setLosscutOrderFlag(BigDecimal.ZERO);
 		order.setMarketAtClosingFlag(BigDecimal.ZERO);
-//		order.setOrderBindId(IdGenerateFacade.getOrderBindId());
+		order.setOrderBindId(orderBindId);
 		order.setOrderDate("20080815");
 		order.setOrderRoute(BigDecimal.ZERO);
 		order.setOrderTime("123456");
