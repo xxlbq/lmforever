@@ -339,6 +339,9 @@ public class LoginPanel extends Composite {
 //                                    MailSender.sendMail(e);
 //                                }
                             
+                            ((Shell) getParent()).close();
+                            System.out.println(" login window close() .");
+                            
                             Shell mainShell = new Shell();
                             NewSWTApp inst = new NewSWTApp(mainShell, SWT.NULL);
                             inst.pack();
@@ -349,8 +352,9 @@ public class LoginPanel extends Composite {
                                     Display.getDefault().sleep();
                             }
                             
+//                            ((Shell) getParent()).close();
+//                            System.out.println(" login window close() .");
                             
-                            ((Shell) getParent()).close();
 //                            }
                         }
                     });
