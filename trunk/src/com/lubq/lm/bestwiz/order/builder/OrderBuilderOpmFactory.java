@@ -12,7 +12,6 @@ import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
-import com.lm.common.util.prop.PropertiesUtil;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
@@ -42,16 +41,16 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 
 
 
-	public JhfAliveOrder createOrder(String customer)
+	public JhfAliveOrder createOrder(String customer,String orderBindId)
 			throws IdGenerateException {
-		return getOpmOrder(customer);
+		return getOpmOrder(customer,orderBindId);
 	}
 
 
 
 	
 
-	public JhfAliveOrder getOpmOrder(String customer)
+	public JhfAliveOrder getOpmOrder(String customer,String orderBindId)
 			throws IdGenerateException {
 
 		// String orderPriceStr = "200.10";
@@ -68,7 +67,8 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		// ===========>
 		JhfAliveOrderId id = new JhfAliveOrderId();
 
-		id.setOrderId(IdGenerateFacade.getOrderId());
+//		id.setOrderId(IdGenerateFacade.getOrderId());
+		id.setOrderId(createOrderId(customer));
 		id.setTradeId(IdGenerateFacade.getTradeId());
 		order.setId(id);
 
@@ -95,7 +95,7 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		order.setInputStaffId("lubq");
 		order.setLosscutOrderFlag(BigDecimal.ZERO);
 		order.setMarketAtClosingFlag(BigDecimal.ZERO);
-		// order.setOrderBindId(IdGenerateFacade.getOrderBindId());
+		order.setOrderBindId(orderBindId);
 		order.setOrderDate("20080818");
 		order.setOrderRoute(BigDecimal.ZERO);
 		order.setOrderTime("123456");
@@ -145,9 +145,9 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		if ( ! orderMessageVender.isDoBatch() ) {
 			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
-			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId());
+			String orderbindId = IdGenerateFacade.getOrderBindId();
+			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
 
-//			String orderbindId = IdGenerateFacade.getOrderBindId();
 //			JhfOrderBind bind = createOrderBind(orderbindId, order.getId().getOrderId(), order.getId().getTradeId());
 
 			writeOrder(order);
@@ -181,11 +181,11 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
 //					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
 					// 生成orderBindId ，一个bindId，对应多个orderId
-//					String orderbindId = IdGenerateFacade.getOrderBindId();
+					String orderbindId = IdGenerateFacade.getOrderBindId();
 
 					for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
 						// 创建order对象，并添加到orderList中
-						JhfAliveOrder order = createOrder(cstId);
+						JhfAliveOrder order = createOrder(cstId,orderbindId);
 						orderList.add(order);
 						// 创建orderBind对象，并添加到orderBindList中
 //						JhfOrderBind bind = createOrderBind(orderbindId, order
@@ -217,6 +217,9 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		}
 
 	}
+	
+	
+	
 	
 	public static void main(String[] args) throws Exception {
 		

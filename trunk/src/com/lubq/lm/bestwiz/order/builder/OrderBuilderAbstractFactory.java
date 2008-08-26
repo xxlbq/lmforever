@@ -3,19 +3,13 @@ package com.lubq.lm.bestwiz.order.builder;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Date;
 import java.util.List;
 
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.BaseMainDao;
 import cn.bestwiz.jhf.core.dao.DAOFactory;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
-import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
-import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBindId;
 import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
-
-import com.lm.common.util.prop.PropertiesUtil;
 
 public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
@@ -35,25 +29,29 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	/**  JhfAliveOrder createOrder(String customer) throws IdGenerateException;  **/
 	
 	
-	public JhfOrderBind createOrderBind(String orderBindId,String orderId,String tradeId) {
-		
-		JhfOrderBind bind = new JhfOrderBind();
-		
-		JhfOrderBindId id = new JhfOrderBindId();
-		id.setOrderBindId(orderBindId);
-		id.setOrderId(orderId);
-		id.setTradeId(tradeId);
-		
-		bind.setId(id);
-		bind.setActiveFlag(BigDecimal.ONE);
-		bind.setInputDate (new Date());
-		bind.setUpdateDate(new Date());
-		
-		return bind;
-		
-	}
+//	public JhfOrderBind createOrderBind(String orderBindId,String orderId,String tradeId) {
+//		
+//		JhfOrderBind bind = new JhfOrderBind();
+//		
+//		JhfOrderBindId id = new JhfOrderBindId();
+//		id.setOrderBindId(orderBindId);
+//		id.setOrderId(orderId);
+//		id.setTradeId(tradeId);
+//		
+//		bind.setId(id);
+//		bind.setActiveFlag(BigDecimal.ONE);
+//		bind.setInputDate (new Date());
+//		bind.setUpdateDate(new Date());
+//		
+//		return bind;
+//		
+//	}
 	
-	
+
+
+
+
+
 	public void writeOrder(JhfAliveOrder order) throws DaoException {
 //		DAOFactory.getOrderDao().createOrder(order);
 		BaseMainDao bdao = new BaseMainDao();
@@ -68,16 +66,16 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	}
 	
 	
-	public void writeOrderBind(JhfOrderBind bind) throws DaoException {
-		DAOFactory.getOrderDao().createOrderBind(bind);
-	}
+//	public void writeOrderBind(JhfOrderBind bind) throws DaoException {
+//		DAOFactory.getOrderDao().createOrderBind(bind);
+//	}
 	
 
-	public void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException {
-		for (JhfOrderBind jhfOrderBind : bindList) {
-			writeOrderBind(jhfOrderBind);
-		}
-	}
+//	public void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException {
+//		for (JhfOrderBind jhfOrderBind : bindList) {
+//			writeOrderBind(jhfOrderBind);
+//		}
+//	}
 	
 	
 	public void doOrder() throws Exception{
@@ -221,9 +219,18 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 //		this.isBatch = isBatch;
 //	}
 
+
 	
 
-	protected OrderBindInfo setupOrderBindInfo(OrderBindInfo bindInfo,JhfAliveOrder order){
+	
+
+	protected OrderBindInfo buildSingleOrderBindInfo(String orderBindId,JhfAliveOrder order){
+		
+		OrderBindInfo bindInfo = new OrderBindInfo();
+		
+		bindInfo.setOrderBindId(orderBindId);
+		bindInfo.setOrderId(order.getId().getOrderId());
+		bindInfo.setTradeId(order.getId().getTradeId());
 		
 		bindInfo.setCurrencyPair(order.getCurrencyPair());
 		bindInfo.setProductId(order.getProductId());
@@ -245,7 +252,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		return bindInfo;
 		
 	}
-
+	
 
 	protected OrderBindInfo setupMuliOrdersOrderBindInfo(String id,List<JhfAliveOrder> orderList ){
 		

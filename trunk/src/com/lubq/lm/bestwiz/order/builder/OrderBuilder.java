@@ -2,26 +2,27 @@ package com.lubq.lm.bestwiz.order.builder;
 
 import java.util.List;
 
-import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
-
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
-import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderBind;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
+import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
+
+import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 
 public interface OrderBuilder {
 	
 	//order 执行前初始化方法
 	void initOrder() throws  Exception;
 
-	JhfAliveOrder createOrder(String customer) throws IdGenerateException;
-	JhfOrderBind  createOrderBind(String orderBindId ,String orderId,String tradeId);
+	JhfAliveOrder createOrder(String customer,String orderBindId) throws IdGenerateException;
+//	JhfOrderBind  createOrderBind(String orderBindId ,String orderId,String tradeId);
+//	OrderBindInfo createOrderBindInfo(String orderBindId ,JhfAliveOrder order);
 
 	void writeOrder(JhfAliveOrder order) throws DaoException;
 	void writeBatchOrder(List<JhfAliveOrder> orderList) throws DaoException;
-	void writeOrderBind(JhfOrderBind bind) throws DaoException;
-	void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException;
+//	void writeOrderBind(JhfOrderBind bind) throws DaoException;
+//	void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException;
 
 	//order 执行的主方法
 	void service() throws  Exception;
