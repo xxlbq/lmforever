@@ -104,7 +104,8 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	
 	//=================
 	private SimpleSender sender;
-	
+	private Object lock = new Object();
+	private int orderProcess = 1;
 	//=================
 	
 	
@@ -141,8 +142,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			
 
 			
-			this.setSize(801, 777);
+			this.setSize(740, 650);
 			this.setBackground(SWTResourceManager.getColor(192, 192, 192));
+//			this.setRedraw(false);
+			
 			GridLayout thisLayout = new GridLayout(1, true);
 			thisLayout.marginWidth = 5;
 			thisLayout.marginHeight = 5;
@@ -153,10 +156,12 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			this.setLayout(thisLayout);
 			{
 				composite1 = new Composite(this, SWT.NONE);
-				GridData composite1LData = new GridData();
-				composite1LData.widthHint = 721;
-				composite1LData.heightHint = 630;
-				composite1.setLayoutData(composite1LData);
+				composite1.setLocation(0, 0);
+				GridData composite1LayoutData = new GridData();
+				composite1LayoutData.widthHint = 730;
+				composite1LayoutData.heightHint = 638;
+				
+				composite1.setLayoutData(composite1LayoutData);
 				composite1.setLayout(null);
 				{
 					group1 = new Group(composite1, SWT.NONE);
@@ -397,9 +402,9 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					
 		
 					
-					new LongRunningOperation(this.getDisplay(), order_progressBar).start();
+					new LongRunningOperation(this.getDisplay(), this).start();
 					
-					new FrontUIRuningOperation(this.getDisplay(), order_progressBar ,process_label).start();
+//					new FrontUIRuningOperation(this.getDisplay(), this).start();
 					
 //					Display.getDefault().syncExec(new Runnable(){
 //						public void run(){
@@ -500,15 +505,17 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	* org.eclipse.swt.widgets.Composite inside a new Shell.
 	*/
 	public static void main(String[] args) {
+		
 		Display display = Display.getDefault();
-		Shell shell = new Shell(display);
-		NewSWTApp inst = new NewSWTApp(shell, SWT.NULL);
+		Shell shell = new Shell(display ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
+		
+		NewSWTApp inst = new NewSWTApp(shell, SWT.SYSTEM_MODAL);
 		Point size = inst.getSize();
 		shell.setLayout(new FillLayout());
 		shell.layout();
 		if(size.x == 0 && size.y == 0) {
-			inst.pack();
-			shell.pack();
+//			inst.pack();
+//			shell.pack();
 		} else {
 			Rectangle shellBounds = shell.computeTrim(0, 0, size.x, size.y);
 			shell.setSize(shellBounds.width, shellBounds.height);
@@ -536,23 +543,29 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	}
 	
 	private void doOrder_buttonMouseDown(MouseEvent evt) {
+		
 		System.out.println("doOrder_button.mouseDown, event=" + evt);
 		
 		System.out.println("execution type : " + executionType_combo.getText() + 
 				           " ---> index:"+executionType_combo.getSelectionIndex());
 		
 		
-		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(this);
-		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
+//		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(this);
+//		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
+//		
+//		try {
+//			fac.doOrder();
+//		} catch (Exception e) {
+//			System.out.println(" doOrder() error ! ");
+//			e.printStackTrace();
+//		}
+		OrderRuningOperation runOrder = new OrderRuningOperation();
+		runOrder.start();
 		
-		try {
-			fac.doOrder();
-		} catch (Exception e) {
-			System.out.println(" doOrder() error ! ");
-			e.printStackTrace();
-		}
-		
-
+//		while (orderProcess < 10) {
+//			increaseOrderProcess(2);
+//			Display.getDefault().sleep();
+//		}
 		
 		
 	}
@@ -563,10 +576,12 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	class LongRunningOperation extends Thread {
 	  private Display display;
 	  private ProgressBar progressBar;
-
-	  public LongRunningOperation(Display display, ProgressBar progressBar) {
+	  private Label label;
+	  
+	  public LongRunningOperation(Display display, NewSWTApp app) {
 	    this.display = display;
-	    this.progressBar = progressBar;
+	    this.progressBar = app.getOrder_progressBar();
+	    this.label = app.getProcess_label();
 	  }
 	  public void run() {
 	    // Perform work here--this operation just sleeps
@@ -585,8 +600,19 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	          }
 
 	          // Increment the progress bar
-	          progressBar.setSelection(progressBar.getSelection() + 2 );
+	          progressBar.setSelection(getOrderProcess() );
 	          
+	          
+
+	          if (progressBar.getSelection() >= 10) {
+	        	  //通知前台线程 改变 label
+	        	  System.out.println("FrontUI thread running.");  
+	        	  label.setText("finished ");
+	        	  return;
+	          }
+
+	          
+	        
 //	          System.out.println();
 	          
 	        }
@@ -599,39 +625,33 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	/**
 	 * This class simulates a long-running operation
 	 */
-	class FrontUIRuningOperation extends Thread {
-	  private Display display;
-	  private ProgressBar progressBar;
-	  private Label label;
-
-	  public FrontUIRuningOperation(Display display, ProgressBar progressBar,Label process_label) {
-	    this.display = display;
-	    this.progressBar = progressBar;
-	    this.label = process_label;
+	class OrderRuningOperation extends Thread {
+//	  private Display display;
+//	  private ProgressBar progressBar;
+//	  private Label label;
+//	  int processNumber ;
+	  public OrderRuningOperation() {
+//	    this.display = display;
+//	    this.progressBar = app.getOrder_progressBar();
+//	    this.label = app.getProcess_label();
+//		  this.processNumber = orderProcess;
 	  }
 	  
 	  public void run() {
-	    // Perform work here--this operation just sleeps
-	    for (int i = 0; i < 50; i++) {
-	      try {
-	        Thread.sleep(1000);
-	      } catch (InterruptedException e) {
-	        // Do nothing
-	      }
-	      display.asyncExec(new Runnable() {
-	        public void run() {
-	          if (progressBar.getSelection() >= 10) {
-	        	  //通知前台线程 改变 label
-	        	  System.out.println("FrontUI thread running.");  
-	        	  label.setText("finished ");
-	        	  return;
-	          }
-
-	          
-	        }
-	      });
-	    }
+		  while(orderProcess < 10){
+			  
+			  increaseOrderProcess(orderProcess);
+			  try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		  }
+			  
 	  }
+	  
+
 	}
 
 
@@ -733,4 +753,34 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		this.customerIdlist_list = customerIdlist_list;
 	}
 
+	public ProgressBar getOrder_progressBar() {
+		return order_progressBar;
+	}
+
+	public void setOrder_progressBar(ProgressBar order_progressBar) {
+		this.order_progressBar = order_progressBar;
+	}
+
+	public Label getProcess_label() {
+		return process_label;
+	}
+
+	public void setProcess_label(Label process_label) {
+		this.process_label = process_label;
+	}
+
+	public int getOrderProcess() {
+		return orderProcess;
+	}
+
+	public void increaseOrderProcess(int increase) {
+		synchronized (lock) {
+			this.orderProcess = orderProcess + increase;
+			System.out.println("orderProcess   ==== :"+orderProcess);
+		}
+
+	}
+	
+	
+	
 }

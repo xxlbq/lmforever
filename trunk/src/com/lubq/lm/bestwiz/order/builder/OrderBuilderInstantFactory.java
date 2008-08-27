@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import cn.bestwiz.jhf.core.bo.contructor.OrderBindInfoFactory;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
 import cn.bestwiz.jhf.core.dao.util.DbSessionFactory;

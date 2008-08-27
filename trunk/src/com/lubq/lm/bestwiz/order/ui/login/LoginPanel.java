@@ -4,6 +4,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -26,6 +29,19 @@ import com.lubq.lm.util.WidgetUtil;
 
 
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 /**
  * ログインウィンドウクラス
  * 
@@ -342,15 +358,37 @@ public class LoginPanel extends Composite {
                             ((Shell) getParent()).close();
                             System.out.println(" login window close() .");
                             
-                            Shell mainShell = new Shell();
-                            NewSWTApp inst = new NewSWTApp(mainShell, SWT.NULL);
-                            inst.pack();
-                            mainShell.open();
-                            
-                            while (!mainShell.isDisposed()) {
-                                if (!Display.getDefault().readAndDispatch())
-                                    Display.getDefault().sleep();
-                            }
+                            Shell mainShell = new Shell(Display.getDefault() ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
+//                        	Shell shell = new Shell(display ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
+                    		
+                    		NewSWTApp inst = new NewSWTApp(mainShell, SWT.SYSTEM_MODAL);
+                    		Point size = inst.getSize();
+                    		mainShell.setLayout(new FillLayout());
+                    		mainShell.layout();
+                    		if(size.x == 0 && size.y == 0) {
+//                    			inst.pack();
+//                    			shell.pack();
+                    		} else {
+                    			Rectangle shellBounds = mainShell.computeTrim(0, 0, size.x, size.y);
+                    			mainShell.setSize(shellBounds.width, shellBounds.height);
+                    		}
+                    		mainShell.open();
+                    		
+                    		
+                    		
+//                    		Display.getCurrent(display.asyncExec(new Runnable() {
+//                    			public void run() {
+//                    			//Inform the indicator that some amount of work has been done
+//                    			indicator.worked(1);
+//                    			}
+//                    			}));
+                    //
+//                    		
+                    		
+//                    		while (!shell.isDisposed()) {
+//                    			if (!display.readAndDispatch())
+//                    				display.sleep();
+//                    		}
                             
 //                            ((Shell) getParent()).close();
 //                            System.out.println(" login window close() .");
