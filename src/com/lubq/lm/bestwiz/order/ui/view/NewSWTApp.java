@@ -1,6 +1,8 @@
 package com.lubq.lm.bestwiz.order.ui.view;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressIndicator;
@@ -41,6 +43,8 @@ import com.lm.common.util.number.NumberCommonUtil;
 import com.lubq.lm.bestwiz.order.builder.OrderBuilderInstantFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
+import com.lubq.lm.bestwiz.order.builder.bean.OrderForm;
+import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 import com.lubq.lm.util.SWTResourceManager;
 
 /**
@@ -103,7 +107,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	
 	//=================
-	private SimpleSender sender;
+//	private SimpleSender sender;
 	private Object lock = new Object();
 	private int orderProcess = 1;
 	//=================
@@ -123,16 +127,16 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 //		initOrderBuilder();
 	}
 	
-	private void initOrderBuilder() {
-		
-		try {
-			sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
-		} catch (JMSException e) {
-			System.err.println("sender init error ! ");
-			e.printStackTrace();
-		}
-		
-	}
+//	private void initOrderBuilder() {
+//		
+//		try {
+//			sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
+//		} catch (JMSException e) {
+//			System.err.println("sender init error ! ");
+//			e.printStackTrace();
+//		}
+//		
+//	}
 
 	/**
 	* Initializes the GUI.
@@ -171,7 +175,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					{
 						customerId_text = new Text(group1, SWT.NONE);
 						customerId_text.setBounds(77, 21, 56, 14);
-						
+						customerId_text.setText("00000101");
 					}
 					{
 						customerId_label = new Label(group1, SWT.NONE);
@@ -209,6 +213,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						executionType_combo.add("LIMIT",1);
 						executionType_combo.add("STOP",2);
 						executionType_combo.add("LOSSCUT",3);
+						executionType_combo.select(0);
 						
 					}
 					
@@ -249,7 +254,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						side_combo.setBounds(91, 94, 63, 21);
 						side_combo.add("买", 0);
 						side_combo.add("卖", 1);
-						side_combo.select(1);
+						side_combo.select(0);
 //						side_combo.set
 					}
 					
@@ -290,6 +295,8 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						
 						isBatch_combo.add("false", 0);
 						isBatch_combo.add("true", 1);
+						isBatch_combo.select(0);
+						
 					}
 					{
 						mode_label = new Label(group2, SWT.NONE);
@@ -303,7 +310,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						mode_combo.add("stay pos",1);
 						mode_combo.add("manual",2);
 						
-						
+						mode_combo.select(1);
 						
 						mode_combo.addSelectionListener(new SelectionAdapter( ) {
 				            public void widgetSelected(SelectionEvent e) {
@@ -325,6 +332,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					{
 						orderPrice_text = new Text(group2, SWT.NONE);
 						orderPrice_text.setBounds(91, 184, 63, 21);
+						orderPrice_text.setText("200.00");
 					}
 					{
 						orderAmount_label = new Label(group2, SWT.NONE);
@@ -366,6 +374,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						for (int i = 0; i < 100; i++) {
 							slippage_combo.add("0."+i,i);
 						}
+						slippage_combo.select(99);
 						
 					}
 					{
@@ -387,22 +396,24 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						bindBatchSize_combo.add("8",7);
 						bindBatchSize_combo.add("9",8);
 						bindBatchSize_combo.add("10",9);
+						bindBatchSize_combo.select(0);
 					}
 				}
 				{
 					process_label = new Label(composite1, SWT.NONE);
 					process_label.setText("processing ... ");
 					process_label.setBounds(7, 588, 63, 14);
+					process_label.setVisible(false);
+					
 				}
 				{
 					order_progressBar = new ProgressBar(composite1, SWT.HORIZONTAL | SWT.SMOOTH);
 					order_progressBar.setBounds(7, 609, 707, 14);
 					order_progressBar.setMinimum(0);
 					order_progressBar.setMaximum(10);
+					order_progressBar.setVisible(false);
 					
-		
 					
-					new LongRunningOperation(this.getDisplay(), this).start();
 					
 //					new FrontUIRuningOperation(this.getDisplay(), this).start();
 					
@@ -432,11 +443,16 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					doOrder_button = new Button(composite1, SWT.PUSH
 						| SWT.CENTER);
 					doOrder_button.setText("\u6ce8\u6587");
-					doOrder_button.setBounds(436, 544, 100, 20);
+					doOrder_button.setBounds(440, 544, 100, 20);
 					doOrder_button.addMouseListener(new MouseAdapter() {
-						public void mouseDown(MouseEvent evt) {
-							doOrder_buttonMouseDown(evt);
+						
+						@Override
+						public void mouseDown(MouseEvent e) {
+							OrderForm of = new OrderForm();
+							submitOrderForm(of);
+							doOrder_buttonMouseDown(of);
 						}
+
 					});
 				}
 				{
@@ -494,12 +510,58 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					}
 				}
 			}
+			
+			
 			this.layout();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
+
+
+	protected void submitOrderForm(OrderForm of) {
+		
+		String 	cId 	= this.getCustomerId_text().getText();
+		java.util.List<String> cIdList = Arrays.asList(this.getCustomerIdlist_list().getItems());
+		String 	currencyPair = this.getCurrencyPair_combo().getText();
+		int 	sideIndex 	= this.getSide_combo().getSelectionIndex();
+		int     orderBatchSize = Integer.parseInt( this.getOrderBatchSize_combo().getText() );
+		int     orderBindBatchSize = Integer.parseInt( this.getBindBatchSize_combo().getText() );
+		boolean isBatch = Boolean.valueOf( this.getIsBatch_combo().getText() );
+		int  	mode = this.getMode_combo().getSelectionIndex();
+		BigDecimal orderPrice = new BigDecimal( this.getOrderPrice_text().getText() );
+		BigDecimal orderAmount = new BigDecimal(this.getOrderAmount_combo().getText());
+		
+		BigDecimal slippage = new BigDecimal(this.getSlippage_combo().getText());
+		int executionTypeIndex = this.getExecutionType_combo().getSelectionIndex();
+		
+		
+		of.setCustomerId(cId);
+		of.setCustomerIdList(cIdList);
+		of.setCurrencyPair(currencyPair);
+		of.setSide(sideIndex);
+		of.setOrderBatchSize(orderBatchSize);
+		of.setOrderBindBatchSize(orderBindBatchSize);
+		of.setBatch(isBatch);
+		of.setMode(mode);
+		of.setOrderPrice(orderPrice);
+		of.setOrderAmount(orderAmount);
+		of.setSlippage(slippage);
+		of.setExecutionType(executionTypeIndex);		
+
+		
+	}
+
+	
+	
+	
+	
+	private void showProcessStuff() {
+		this.process_label.setVisible(true);
+		this.order_progressBar.setVisible(true);
+		
+	}
 	/**
 	* Auto-generated main method to display this 
 	* org.eclipse.swt.widgets.Composite inside a new Shell.
@@ -542,31 +604,60 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		
 	}
 	
-	private void doOrder_buttonMouseDown(MouseEvent evt) {
+	private void doOrder_buttonMouseDown(OrderForm of) {
 		
-		System.out.println("doOrder_button.mouseDown, event=" + evt);
+		System.out.println("button fire .....");
+		final OrderForm form = of;
+		new Thread() {
+			public void run() {
+				
+				doUIorder(form);
+				
+				Display.getDefault().asyncExec(new Runnable() {
+
+					public void run() {
+						
+						
+						showProcessStuff();
+						new LongRunningOperation().start();
+						
+					}
+
+				});
+			}
+		}.start();
+
+	
+
+
 		
-		System.out.println("execution type : " + executionType_combo.getText() + 
-				           " ---> index:"+executionType_combo.getSelectionIndex());
+
 		
+	}
+
+
+
+	protected void doUIorder(OrderForm of) {
+		SimpleSender sender = null;
+		try {
+			sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
+		} catch (JMSException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
-//		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(this);
-//		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
-//		
-//		try {
-//			fac.doOrder();
-//		} catch (Exception e) {
-//			System.out.println(" doOrder() error ! ");
-//			e.printStackTrace();
-//		}
-		OrderRuningOperation runOrder = new OrderRuningOperation();
-		runOrder.start();
+		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(of);
+		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
 		
-//		while (orderProcess < 10) {
-//			increaseOrderProcess(2);
-//			Display.getDefault().sleep();
-//		}
+		try {
+			fac.doOrder();
+		} catch (Exception e) {
+			System.out.println(" doOrder() error ! ");
+			e.printStackTrace();
+		}
+
 		
+		sender.close();
 		
 	}
 
@@ -574,14 +665,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	 * This class simulates a long-running operation
 	 */
 	class LongRunningOperation extends Thread {
-	  private Display display;
-	  private ProgressBar progressBar;
-	  private Label label;
+
 	  
-	  public LongRunningOperation(Display display, NewSWTApp app) {
-	    this.display = display;
-	    this.progressBar = app.getOrder_progressBar();
-	    this.label = app.getProcess_label();
+	  public LongRunningOperation() {
+
 	  }
 	  public void run() {
 	    // Perform work here--this operation just sleeps
@@ -591,23 +678,23 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	      } catch (InterruptedException e) {
 	        // Do nothing
 	      }
-	      display.asyncExec(new Runnable() {
+	      Display.getDefault().asyncExec(new Runnable() {
 	        public void run() {
-	          if (progressBar.getSelection() >= 10) {
+	          if (order_progressBar.getSelection() >= 10) {
 	        	  //通知前台线程 改变 label
-	        	  System.out.println(" progressBar.getSelection()="+progressBar.getSelection());      	  
+	        	  System.out.println(" progressBar.getSelection()="+order_progressBar.getSelection());      	  
 	        	  return;
 	          }
 
 	          // Increment the progress bar
-	          progressBar.setSelection(getOrderProcess() );
+	          order_progressBar.setSelection(getOrderProcess() );
 	          
 	          
 
-	          if (progressBar.getSelection() >= 10) {
+	          if (order_progressBar.getSelection() >= 10) {
 	        	  //通知前台线程 改变 label
 	        	  System.out.println("FrontUI thread running.");  
-	        	  label.setText("finished ");
+	        	  process_label.setText("finished ");
 	        	  return;
 	          }
 

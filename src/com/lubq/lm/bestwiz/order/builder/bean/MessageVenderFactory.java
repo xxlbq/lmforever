@@ -42,40 +42,40 @@ public class MessageVenderFactory {
 
 	
 	
-	public static OrderBuilderMessageVender createOrderMsgVender(NewSWTApp app) {
+	public static OrderBuilderMessageVender createOrderMsgVender(OrderForm of) {
 		
 		OrderBuilderMessageVender orderVender = new OrderBuilderMessageVender();
 		
-		String 	cId 	= app.getCustomerId_text().getText();
-		List<String> cIdList = Arrays.asList(app.getCustomerIdlist_list().getItems());
-		String 	currencyPair = app.getCurrencyPair_combo().getText();
-		int 	sideIndex 	= app.getSide_combo().getSelectionIndex();
-		int     orderBatchSize = Integer.parseInt( app.getOrderBatchSize_combo().getText() );
-		int     orderBindBatchSize = Integer.parseInt( app.getBindBatchSize_combo().getText() );
-		boolean isBatch = Boolean.valueOf( app.getIsBatch_combo().getText() );
-		int  	mode = app.getMode_combo().getSelectionIndex();
-		BigDecimal orderPrice = new BigDecimal( app.getOrderPrice_text().getText() );
-		BigDecimal orderAmount = new BigDecimal(app.getOrderAmount_combo().getText());
-		
-		BigDecimal slippage = new BigDecimal(app.getSlippage_combo().getText());
-		int executionTypeIndex = app.getExecutionType_combo().getSelectionIndex();
-		
-		
+//		String 	cId 	= app.getCustomerId_text().getText();
+//		List<String> cIdList = Arrays.asList(app.getCustomerIdlist_list().getItems());
+//		String 	currencyPair = app.getCurrencyPair_combo().getText();
+//		int 	sideIndex 	= app.getSide_combo().getSelectionIndex();
+//		int     orderBatchSize = Integer.parseInt( app.getOrderBatchSize_combo().getText() );
+//		int     orderBindBatchSize = Integer.parseInt( app.getBindBatchSize_combo().getText() );
+//		boolean isBatch = Boolean.valueOf( app.getIsBatch_combo().getText() );
+//		int  	mode = app.getMode_combo().getSelectionIndex();
+//		BigDecimal orderPrice = new BigDecimal( app.getOrderPrice_text().getText() );
+//		BigDecimal orderAmount = new BigDecimal(app.getOrderAmount_combo().getText());
+//		
+//		BigDecimal slippage = new BigDecimal(app.getSlippage_combo().getText());
+//		int executionTypeIndex = app.getExecutionType_combo().getSelectionIndex();
+//		
+//		
 
 		
-		orderVender.setCustomerId(cId);
-		orderVender.setCustomerIdList(cIdList);
+		orderVender.setCustomerId(of.getCustomerId());
+		orderVender.setCustomerIdList(of.getCustomerIdList());
 		
-		orderVender.setCurrencyPair(currencyPair);
-		orderVender.setSide(ComboConstants.sideArr[sideIndex]);
-		orderVender.setOrderBatchSize(orderBatchSize);
-		orderVender.setOrderBindBatchSize(orderBindBatchSize);
-		orderVender.setDoBatch(isBatch);
-		orderVender.setMode(mode);
-		orderVender.setOrderPrice(orderPrice);
-		orderVender.setAmount(orderAmount);
-		orderVender.setSlippage(slippage);
-		orderVender.setExecutionType( ComboConstants.executionTypeArr[executionTypeIndex] );
+		orderVender.setCurrencyPair(of.getCurrencyPair());
+		orderVender.setSide(of.getSide());
+		orderVender.setOrderBatchSize(of.getOrderBatchSize());
+		orderVender.setOrderBindBatchSize(of.getOrderBindBatchSize());
+		orderVender.setDoBatch(of.isBatch());
+		orderVender.setMode(of.getMode());
+		orderVender.setOrderPrice(of.getOrderPrice());
+		orderVender.setAmount(of.getOrderAmount());
+		orderVender.setSlippage(of.getSlippage());
+		orderVender.setExecutionType(of.getExecutionType());
 		
 		
 		

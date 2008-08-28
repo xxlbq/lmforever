@@ -1,0 +1,92 @@
+
+
+JHF_CUSTOMER
+JHF_PERSONAL
+JHF_MAIL_ADDRESS
+JHF_CUST_BANK_ACCOUNT
+JHF_CUSTOMER_STATUS
+JHF_CASH_BALANCE
+JHF_CUSTOMER_LOCK
+JHF_ORDER_NO_GENERATOR
+
+
+
+
+
+
+
+SQL:JHF_CUSTOMER
+
+                   CUSTOMER_ID=00000101
+              CORPORATION_TYPE: 0
+          DOCUMENT_SEND_STATUS: 1
+                    FIRST_NAME: ????
+               FIRST_NAME_KANA: ?g?V?m??
+                     LAST_NAME: ?               LAST_NAME_KANA: ?T?T???g
+                 BIRTHDAY_YEAR: 1950
+                BIRTHDAY_MONTH: 09
+                  BIRTHDAY_DAY: 15
+                    ZIP_CODE_1: 1070052
+                        CITY_1: ?k?C?1
+                     SECTION_1: ?D?y?s?L???^????O??U??P??
+                SECTION_KANA_1: ?¡¥¦¯???? ?¡¤?3??3
+                        FLAT_1: ?M?a???b?`?R?O?V??
+                   FLAT_KANA_1: ???s07o?
+                         TEL_1: 000-000-0000
+                         FAX_1: 000-000-0000
+                    ZIP_CODE_2: 1070052
+                        CITY_2: 
+                     SECTION_2: 
+                SECTION_KANA_2: 
+                 BUILDING_NAME: 
+            BUILDING_NAME_KANA: 
+                 ANNUAL_INCOME: 2
+              FINANCIAL_ASSETS: 3
+         FIRST_TRANSFER_AMOUNT: 7
+              CONTRACT_PURPOSE: 1
+      CONTRACT_PURPOSE_COMMENT: NULL
+          MJHF_EXPERIENCE_FLAG: 1
+          MJHF_EXPERIENCE_YEAR: 1
+         STOCK_EXPERIENCE_FLAG: 0
+         STOCK_EXPERIENCE_YEAR: NULL
+  STOCK_MARGIN_EXPERIENCE_FLAG: 0
+  STOCK_MARGIN_EXPERIENCE_YEAR: NULL
+     STOCK_IDX_OPTION_EXP_FLAG: 0
+     STOCK_IDX_OPTION_EXP_YEAR: NULL
+       PRODUCT_OPTION_EXP_FLAG: 0
+       PRODUCT_OPTION_EXP_YEAR: NULL
+              OTHER_EXPERIENCE: 
+         OTHER_EXPERIENCE_YEAR: NULL
+              APPLICATION_DATE: 20070523
+           ACCOUNT_OPEN_STATUS: 8
+ACCOUNT_STATUS_CHANGE_DATETIME: 2007-05-24 11:14:34
+                        MEMO_1: NULL
+                        MEMO_2: NULL
+                        MEMO_3: NULL
+               UPDATE_STAFF_ID: CS0004
+                INPUT_STAFF_ID: system
+                   ACTIVE_FLAG: 1
+                    INPUT_DATE: 2007-05-23 16:33:17
+                   UPDATE_DATE: 2008-08-18 18:50:25
+                    AGREE_FLAG: 1
+         ORIGINAL_DEPOSIT_DATE: 20070528
+            DOCUMENT_POST_DATE: NULL
+          DOCUMENT_ACCEPT_DATE: 20070524
+             ACCOUNT_OPEN_DATE: 20070524
+                HOUSE_NUMBER_1: ?W?|?U?|?P
+           HOUSE_NUMBER_KANA_1: 8-6-1
+            CONTRACT_PURPOSE_1: NULL
+            CONTRACT_PURPOSE_2: NULL
+            CONTRACT_PURPOSE_3: 1
+            CONTRACT_PURPOSE_4: NULL
+            CONTRACT_PURPOSE_5: NULL
+            CONTRACT_PURPOSE_6: NULL
+            CONTRACT_PURPOSE_7: NULL
+            CONTRACT_PURPOSE_8: NULL
+               DISCOVER_SOURCE: NULL
+       DISCOVER_SOURCE_COMMENT: NULL
+                      FIT_FLAG: 0
+      ACCOUNT_OPEN_FINISH_DATE: NULL
+               DAILY_MAIL_FLAG: NULL
+           ACCOUNT_CANCEL_DATE: NULL
+    ACCOUNT_STATUS_CHANGE_DATE: 20080818
