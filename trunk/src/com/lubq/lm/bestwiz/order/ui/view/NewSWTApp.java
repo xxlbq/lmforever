@@ -1,17 +1,9 @@
 package com.lubq.lm.bestwiz.order.ui.view;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressIndicator;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,24 +19,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
-import com.lm.common.util.number.NumberCommonUtil;
 import com.lubq.lm.bestwiz.order.builder.OrderBuilderInstantFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderForm;
-import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 import com.lubq.lm.util.SWTResourceManager;
 
 /**
@@ -63,7 +51,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
-	private List customerIdlist_list;
+	private StyledText customerIdlist_list;
 	private Label customerIdList_label;
 	private Combo bindBatchSize_combo;
 	private Button cancel_button;
@@ -188,8 +176,9 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						customerIdList_label.setBounds(180, 21, 84, 15);
 					}
 					{
-						customerIdlist_list = new List(group1, SWT.NONE);
+						customerIdlist_list = new StyledText(group1, SWT.BORDER);
 						customerIdlist_list.setBounds(273, 14, 66, 49);
+						customerIdlist_list.setContent(newContent);
 					}
 				}
 				{
@@ -523,7 +512,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	protected void submitOrderForm(OrderForm of) {
 		
 		String 	cId 	= this.getCustomerId_text().getText();
-		java.util.List<String> cIdList = Arrays.asList(this.getCustomerIdlist_list().getItems());
+//		java.util.List<String> cIdList = Arrays.asList(this.getCustomerIdlist_list().getItems());
 		String 	currencyPair = this.getCurrencyPair_combo().getText();
 		int 	sideIndex 	= this.getSide_combo().getSelectionIndex();
 		int     orderBatchSize = Integer.parseInt( this.getOrderBatchSize_combo().getText() );
@@ -538,7 +527,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		
 		
 		of.setCustomerId(cId);
-		of.setCustomerIdList(cIdList);
+//		of.setCustomerIdList(cIdList);
 		of.setCurrencyPair(currencyPair);
 		of.setSide(sideIndex);
 		of.setOrderBatchSize(orderBatchSize);
@@ -823,10 +812,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	public void setCustomerId_text(Text customerId_text) {
 		this.customerId_text = customerId_text;
 	}
-	
-	public List getCustomerIdlist_list() {
-		return customerIdlist_list;
-	}
+
 
 	public Combo getBindBatchSize_combo() {
 		return bindBatchSize_combo;
@@ -836,7 +822,13 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		this.bindBatchSize_combo = bindBatchSize_combo;
 	}
 
-	public void setCustomerIdlist_list(List customerIdlist_list) {
+	
+
+	public StyledText getCustomerIdlist_list() {
+		return customerIdlist_list;
+	}
+
+	public void setCustomerIdlist_list(StyledText customerIdlist_list) {
 		this.customerIdlist_list = customerIdlist_list;
 	}
 
