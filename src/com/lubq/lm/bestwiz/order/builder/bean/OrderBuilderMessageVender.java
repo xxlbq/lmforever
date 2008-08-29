@@ -158,7 +158,7 @@ public class OrderBuilderMessageVender {
 		buf.append(",customerId:"+customerId );
 
 		
-		StringBuffer  cIdList = new StringBuffer("customerId List:");
+		StringBuffer  cIdList = new StringBuffer(",customerId List:[");
 		
 		if(customerIdList != null){
 			for (String cId : customerIdList) {
@@ -166,7 +166,7 @@ public class OrderBuilderMessageVender {
 			}
 		}
 		
-		buf.append(cIdList);
+		buf.append(cIdList +"]");
 
 		return buf.toString();
 	}

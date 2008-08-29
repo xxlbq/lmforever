@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -29,11 +31,14 @@ import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
+import com.lubq.lm.bestwiz.order.builder.OrderBuilderAbstractFactory;
 import com.lubq.lm.bestwiz.order.builder.OrderBuilderInstantFactory;
+import com.lubq.lm.bestwiz.order.builder.OrderBuilderOpmFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderForm;
 import com.lubq.lm.util.SWTResourceManager;
+import com.lubq.lm.util.StringUtil;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -95,7 +100,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	
 	//=================
-//	private SimpleSender sender;
+	private SimpleSender sender = null;
 	private Object lock = new Object();
 	private int orderProcess = 1;
 	//=================
@@ -136,7 +141,19 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			
 			this.setSize(740, 650);
 			this.setBackground(SWTResourceManager.getColor(192, 192, 192));
-//			this.setRedraw(false);
+			this.addDisposeListener(new DisposeListener(){
+
+				public void widgetDisposed(DisposeEvent de) {
+					System.out.println(" widget disposed  ... fire method .");
+					if(null != sender){
+						
+						sender.close();
+						System.exit(0);
+					}
+					
+				}
+				
+			});
 			
 			GridLayout thisLayout = new GridLayout(1, true);
 			thisLayout.marginWidth = 5;
@@ -178,7 +195,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					{
 						customerIdlist_list = new StyledText(group1, SWT.BORDER);
 						customerIdlist_list.setBounds(273, 14, 66, 49);
-						customerIdlist_list.setContent(newContent);
+						
 					}
 				}
 				{
@@ -438,6 +455,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						@Override
 						public void mouseDown(MouseEvent e) {
 							OrderForm of = new OrderForm();
+							System.out.println("TEXT:"+customerIdlist_list.getText());
 							submitOrderForm(of);
 							doOrder_buttonMouseDown(of);
 						}
@@ -511,8 +529,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	protected void submitOrderForm(OrderForm of) {
 		
+//		System.out.println("========:"+this.getCustomerIdlist_list().getText());
+		
 		String 	cId 	= this.getCustomerId_text().getText();
-//		java.util.List<String> cIdList = Arrays.asList(this.getCustomerIdlist_list().getItems());
+		java.util.List<String> cIdList = StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
 		String 	currencyPair = this.getCurrencyPair_combo().getText();
 		int 	sideIndex 	= this.getSide_combo().getSelectionIndex();
 		int     orderBatchSize = Integer.parseInt( this.getOrderBatchSize_combo().getText() );
@@ -526,8 +546,17 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		int executionTypeIndex = this.getExecutionType_combo().getSelectionIndex();
 		
 		
+		
+//		for (String string : cIdList) {
+//			
+//			System.out.println("FOR  cid:"+string);
+//		}
+		
+		
+		
+		
 		of.setCustomerId(cId);
-//		of.setCustomerIdList(cIdList);
+		of.setCustomerIdList(cIdList);
 		of.setCurrencyPair(currencyPair);
 		of.setSide(sideIndex);
 		of.setOrderBatchSize(orderBatchSize);
@@ -559,7 +588,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		
 		Display display = Display.getDefault();
 		Shell shell = new Shell(display ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
-		
+
 		NewSWTApp inst = new NewSWTApp(shell, SWT.SYSTEM_MODAL);
 		Point size = inst.getSize();
 		shell.setLayout(new FillLayout());
@@ -599,21 +628,19 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		final OrderForm form = of;
 		new Thread() {
 			public void run() {
-				
-				doUIorder(form);
-				
-				Display.getDefault().asyncExec(new Runnable() {
 
+				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
-						
-						
 						showProcessStuff();
 						new LongRunningOperation().start();
-						
 					}
 
 				});
+				
+				doUIorder(form);
+				
 			}
+			
 		}.start();
 
 	
@@ -627,16 +654,39 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 
 	protected void doUIorder(OrderForm of) {
-		SimpleSender sender = null;
+		
 		try {
 			sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
 		} catch (JMSException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(of);
-		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
+		OrderBuilderAbstractFactory fac = null;
+		
+		switch (orderVender.getExecutionType()) {
+		case 12:
+			fac = new OrderBuilderInstantFactory(sender,orderVender);
+			break;
+			
+		case 0:
+			fac = new OrderBuilderOpmFactory(orderVender);
+			break;
+			
+		case 1:
+			fac = new OrderBuilderOpmFactory(orderVender);
+			break;
+			
+		case 8:
+			System.out.println("losscut execution type:"+ orderVender.getExecutionType());
+			break;
+			
+		default:
+			System.out.println("other execution type:"+ orderVender.getExecutionType());
+			break;
+		}
+		
+		
 		
 		try {
 			fac.doOrder();
@@ -646,7 +696,8 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		}
 
 		
-		sender.close();
+//		sender.close();
+		
 		
 	}
 
@@ -720,7 +771,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			  try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 		  }
