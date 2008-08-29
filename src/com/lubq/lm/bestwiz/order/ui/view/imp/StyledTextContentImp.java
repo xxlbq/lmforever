@@ -17,7 +17,7 @@ public class StyledTextContentImp implements StyledTextContent{
 
 	public String getLine(int lineIndex) {
 		
-		return ;
+		return null;
 	}
 
 	public int getLineAtOffset(int arg0) {

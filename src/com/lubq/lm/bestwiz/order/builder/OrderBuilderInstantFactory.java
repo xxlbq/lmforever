@@ -18,6 +18,8 @@ import cn.bestwiz.jhf.core.jms.exception.JMSException;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
+import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
+import com.sun.org.apache.bcel.internal.generic.NEWARRAY;
 
 
 
@@ -84,6 +86,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 	public void initOrder() {
 		System.out.println( " Instant order do init() ..." );
+		NewSWTApp.increaseOrderProcess(2); 
 		System.out.println( " Instant order init() over ." );
 	}
 
@@ -98,6 +101,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		}else{
 			System.out.println("Single bind info sending ...");
 			afterSingleInstantsOrder(singleBindInfo);
+			NewSWTApp.increaseOrderProcess(3); 
 			System.out.println("Single bind info send over .");
 		}
 	}
@@ -128,6 +132,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 			singleBindInfo = buildSingleOrderBindInfo(orderbindId, order);
 
 			writeOrder(order);
+			NewSWTApp.increaseOrderProcess(5); 
 
 //			if (null != bind) {
 //				writeOrderBind(bind);

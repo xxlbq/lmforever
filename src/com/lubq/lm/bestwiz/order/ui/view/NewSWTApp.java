@@ -101,8 +101,14 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	
 	//=================
 	private SimpleSender sender = null;
-	private Object lock = new Object();
-	private int orderProcess = 1;
+	private static Object lock = new Object();
+	
+//	private int orderProcessInit = 0;
+	private int orderProcessMin = 0;
+	private int orderProcessMax = 0;
+	public static int orderPrcoessing = 0;
+	private boolean processOver = false;
+	public static final int nPerOrder = 10 ;
 	//=================
 	
 	
@@ -415,13 +421,13 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 				{
 					order_progressBar = new ProgressBar(composite1, SWT.HORIZONTAL | SWT.SMOOTH);
 					order_progressBar.setBounds(7, 609, 707, 14);
-					order_progressBar.setMinimum(0);
-					order_progressBar.setMaximum(10);
+					order_progressBar.setMinimum(orderProcessMin);
+//					order_progressBar.setMaximum(orderProcessMax);
 					order_progressBar.setVisible(false);
 					
 					
 					
-//					new FrontUIRuningOperation(this.getDisplay(), this).start();
+					
 					
 //					Display.getDefault().syncExec(new Runnable(){
 //						public void run(){
@@ -457,6 +463,18 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 							OrderForm of = new OrderForm();
 							System.out.println("TEXT:"+customerIdlist_list.getText());
 							submitOrderForm(of);
+							
+							
+							if(of.isBatch()){
+								orderProcessMax = nPerOrder * of.getOrderBatchSize() * of.getOrderBindBatchSize();
+								order_progressBar.setMaximum(orderProcessMax);
+							}else{
+								orderProcessMax = nPerOrder;
+								order_progressBar.setMaximum(orderProcessMax);
+							}
+
+							System.out.println("===============> Maximum:"+orderProcessMax+",orderprocessing:"+orderPrcoessing);
+							
 							doOrder_buttonMouseDown(of);
 						}
 
@@ -632,6 +650,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						showProcessStuff();
+//						new OrderRuningOperation().start();
 						new LongRunningOperation().start();
 					}
 
@@ -706,80 +725,90 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	 */
 	class LongRunningOperation extends Thread {
 
-	  
-	  public LongRunningOperation() {
+		public LongRunningOperation() {
+		}
 
-	  }
-	  public void run() {
-	    // Perform work here--this operation just sleeps
-	    for (int i = 0; i < 30; i++) {
-	      try {
-	        Thread.sleep(1000);
-	      } catch (InterruptedException e) {
-	        // Do nothing
-	      }
-	      Display.getDefault().asyncExec(new Runnable() {
-	        public void run() {
-	          if (order_progressBar.getSelection() >= 10) {
-	        	  //通知前台线程 改变 label
-	        	  System.out.println(" progressBar.getSelection()="+order_progressBar.getSelection());      	  
-	        	  return;
-	          }
+		public void run() {
+			
+//			while (orderProcessInit < 10) {
+//
+//				increaseOrderProcess(orderProcessInit);
+//				
+//				try {
+//					Thread.sleep(3000);
+//				} catch (InterruptedException e) {
+//
+//					e.printStackTrace();
+//				}
+//			}
 
-	          // Increment the progress bar
-	          order_progressBar.setSelection(getOrderProcess() );
-	          
-	          
+			// Perform work here--this operation just sleeps
+			while (orderPrcoessing <= orderProcessMax) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						
+						if (order_progressBar.getSelection() >= orderProcessMax) {
+							// 通知前台线程 改变 label
+							System.out.println("process bar will finished .....");
+							process_label.setText("finished ");
+							processOver = true;
+//							return;
+						}
 
-	          if (order_progressBar.getSelection() >= 10) {
-	        	  //通知前台线程 改变 label
-	        	  System.out.println("FrontUI thread running.");  
-	        	  process_label.setText("finished ");
-	        	  return;
-	          }
+						
+						// Increment the progress bar
+						order_progressBar.setSelection(getOrderProcess());
+						System.out.println(" progressBar.getSelection()="+ order_progressBar.getSelection());
 
-	          
-	        
-//	          System.out.println();
-	          
-	        }
-	      });
-	    }
-	  }
-	}
-	
-	
-	/**
-	 * This class simulates a long-running operation
-	 */
-	class OrderRuningOperation extends Thread {
-//	  private Display display;
-//	  private ProgressBar progressBar;
-//	  private Label label;
-//	  int processNumber ;
-	  public OrderRuningOperation() {
-//	    this.display = display;
-//	    this.progressBar = app.getOrder_progressBar();
-//	    this.label = app.getProcess_label();
-//		  this.processNumber = orderProcess;
-	  }
-	  
-	  public void run() {
-		  while(orderProcess < 10){
-			  
-			  increaseOrderProcess(orderProcess);
-			  try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
+					}
+				});
+				
 
-				e.printStackTrace();
+				if(processOver){
+					orderPrcoessing = 0;
+					break;
+				}
 			}
-		  }
-			  
-	  }
-	  
-
+		}
 	}
+	
+	
+// /**
+// * This class simulates a long-running operation
+// */
+// class OrderRuningOperation extends Thread {
+// // private Display display;
+// // private ProgressBar progressBar;
+////	  private Label label;
+////	  int processNumber ;
+//	  public OrderRuningOperation() {
+////	    this.display = display;
+////	    this.progressBar = app.getOrder_progressBar();
+////	    this.label = app.getProcess_label();
+////		  this.processNumber = orderProcess;
+//	  }
+//	  
+//	  public void run() {
+//		  while(orderProcessInit < 10){
+//			  
+//			  increaseOrderProcess(orderProcessInit);
+//			  try {
+//				Thread.sleep(3000);
+//			} catch (InterruptedException e) {
+//
+//				e.printStackTrace();
+//			}
+//		  }
+//			  
+//	  }
+//	  
+//
+//	}
 
 
 	public Combo getSlippage_combo() {
@@ -900,13 +929,13 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	}
 
 	public int getOrderProcess() {
-		return orderProcess;
+		return orderPrcoessing;
 	}
 
-	public void increaseOrderProcess(int increase) {
+	public static void increaseOrderProcess(int increase) {
 		synchronized (lock) {
-			this.orderProcess = orderProcess + increase;
-			System.out.println("orderProcess   ==== :"+orderProcess);
+			NewSWTApp.orderPrcoessing = NewSWTApp.orderPrcoessing + increase;
+			System.out.println("orderProcess   ==== :"+orderPrcoessing);
 		}
 
 	}
