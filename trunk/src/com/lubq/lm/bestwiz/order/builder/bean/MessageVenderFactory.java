@@ -1,16 +1,9 @@
 package com.lubq.lm.bestwiz.order.builder.bean;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 
 import com.lm.common.util.prop.PropertiesUtil;
-import com.lubq.lm.bestwiz.order.builder.cons.ComboConstants;
-import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
+import com.lubq.lm.util.StringUtil;
 
 public class MessageVenderFactory {
 
@@ -63,8 +56,10 @@ public class MessageVenderFactory {
 //		
 
 		
-		orderVender.setCustomerId(of.getCustomerId());
-		orderVender.setCustomerIdList(of.getCustomerIdList());
+		orderVender.setCustomerId(  
+				StringUtil.customerStringCheck(of.getCustomerId()) );
+		orderVender.setCustomerIdList(
+				StringUtil.customerStringListCheck( of.getCustomerIdList()));
 		
 		orderVender.setCurrencyPair(of.getCurrencyPair());
 		orderVender.setSide(of.getSide());

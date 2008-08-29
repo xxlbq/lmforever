@@ -145,7 +145,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 
 		} else {
 
-//			bindInfoList = new ArrayList<OrderBindInfo>();
+			muliBindInfoList = new ArrayList<OrderBindInfo>();
 			// 多个customerId
 			List<String> customerIdList = orderMessageVender.getCustomerIdList();
 
