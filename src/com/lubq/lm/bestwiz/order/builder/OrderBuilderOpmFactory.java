@@ -127,6 +127,7 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 	
 	public void initOrder() {
 		System.out.println( " Instant order do init() ..." );
+		super.initOrder();
 		System.out.println( " Instant order init() over ." );
 		
 	}

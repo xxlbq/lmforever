@@ -30,11 +30,20 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
 	
 	public void initOrder() {
+		
 		System.out.println( " select like %LUBQ% order and delete them  ..." );
 		int deleteOldOrder = OrderBuilderDao.deleteOrder(OrderBuilderAbstractFactory.ORDER_PREFIX);
-		System.out.println( " old order delete :"+deleteOldOrder);
-
+		int deleteOldExecution = OrderBuilderDao.deleteExecution(OrderBuilderAbstractFactory.ORDER_PREFIX);
+		int deleteHis = OrderBuilderDao.deleteOrderStatusHis(OrderBuilderAbstractFactory.ORDER_PREFIX);
+		int deleteContract = OrderBuilderDao.deleteContract(OrderBuilderAbstractFactory.ORDER_PREFIX);
 		
+		System.out.println( " old order     delete :"+deleteOldOrder);
+		System.out.println( " old Execution delete :"+deleteOldExecution);
+		System.out.println( " old orderHis  delete :"+deleteHis);
+		System.out.println( " old Contract  delete :"+deleteContract);
+
+//		int deleteHedgeCustTrade = OrderBuilderDao.deleteHedgeCustTrade();
+//		int deleteSysPosInsert = OrderBuilderDao.deleteSysPosInsert();
 	}
 
 	/**  JhfAliveOrder createOrder(String customer) throws IdGenerateException;  **/
