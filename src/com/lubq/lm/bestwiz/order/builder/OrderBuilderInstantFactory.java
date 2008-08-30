@@ -100,14 +100,16 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		if(getOrderBuilderMessageVender().isDoBatch()){
 			System.out.println("Multi bind info sending ...");
 			afterMultiInstantsOrder(muliBindInfoList);
-			NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
+			
 			System.out.println("Multi bind info send over .");
 		}else{
 			System.out.println("Single bind info sending ...");
 			afterSingleInstantsOrder(singleBindInfo);
-			NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
+			
 			System.out.println("Single bind info send over .");
 		}
+		
+		NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
 	}
 
 	
