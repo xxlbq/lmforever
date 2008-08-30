@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import com.lubq.lm.bestwiz.order.builder.dao.OrderBuilderDao;
+import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
+
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.BaseMainDao;
 import cn.bestwiz.jhf.core.dao.DAOFactory;
@@ -20,12 +23,20 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 //	int mode = 1 ;
 
 	private static Object lock = new Object();
-	private static final String ORDER_PREFIX = "LUBQ";
+	public static final String ORDER_PREFIX = "LUBQ";
 	private static int ORDER_NUMBER = 1;
 	
 	private static DecimalFormat df = new DecimalFormat("0000000");
 	
-	/**  void initOrder();  **/
+	
+	public void initOrder() {
+		System.out.println( " select like %LUBQ% order and delete them  ..." );
+		int deleteOldOrder = OrderBuilderDao.deleteOrder(OrderBuilderAbstractFactory.ORDER_PREFIX);
+		System.out.println( " old order delete :"+deleteOldOrder);
+
+		
+	}
+
 	/**  JhfAliveOrder createOrder(String customer) throws IdGenerateException;  **/
 	
 	
