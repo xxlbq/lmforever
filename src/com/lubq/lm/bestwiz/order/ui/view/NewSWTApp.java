@@ -109,6 +109,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	public static int orderPrcoessing = 0;
 	private boolean processOver = false;
 	public static final int nPerOrder = 10 ;
+	
+	//
+	public static int scaling = 1;
+	public static int bindCustomerSize = 1;
 	//=================
 	
 	
@@ -365,7 +369,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						orderAmount_combo.add("60000",6);
 						orderAmount_combo.add("70000",7);
 						orderAmount_combo.add("80000",8);
-						orderAmount_combo.add("90000t",9);
+						orderAmount_combo.add("90000",9);
 						orderAmount_combo.add("100000",10);
 						
 						orderAmount_combo.select(1);
@@ -461,12 +465,14 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						@Override
 						public void mouseDown(MouseEvent e) {
 							OrderForm of = new OrderForm();
-							System.out.println("TEXT:"+customerIdlist_list.getText());
+//							System.out.println("TEXT:"+customerIdlist_list.getText());
 							submitOrderForm(of);
 							
 							
 							if(of.isBatch()){
-								orderProcessMax = nPerOrder * of.getOrderBatchSize() * of.getOrderBindBatchSize();
+								scaling = of.getOrderBatchSize() * of.getOrderBindBatchSize() * of.getCustomerIdList().size();
+								bindCustomerSize = of.getOrderBindBatchSize() * of.getCustomerIdList().size();
+								orderProcessMax = nPerOrder * scaling;
 								order_progressBar.setMaximum(orderProcessMax);
 							}else{
 								orderProcessMax = nPerOrder;
@@ -763,7 +769,8 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						
 						// Increment the progress bar
 						order_progressBar.setSelection(getOrderProcess());
-						System.out.println(" progressBar.getSelection()="+ order_progressBar.getSelection());
+						System.out.println(" progressBar.getSelection()="+ order_progressBar.getSelection()
+								+ " , orderProcessMax ="+orderProcessMax);
 
 					}
 				});
@@ -935,7 +942,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	public static void increaseOrderProcess(int increase) {
 		synchronized (lock) {
 			NewSWTApp.orderPrcoessing = NewSWTApp.orderPrcoessing + increase;
-			System.out.println("orderProcess   ==== :"+orderPrcoessing);
+			System.out.println("orderPrcoessing   ==== :"+orderPrcoessing);
 		}
 
 	}

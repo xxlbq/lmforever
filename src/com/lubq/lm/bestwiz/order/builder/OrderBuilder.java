@@ -13,7 +13,7 @@ import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 public interface OrderBuilder {
 	
 	//order 执行前初始化方法
-	void initOrder() throws  Exception;
+	void initOrder();
 
 	JhfAliveOrder createOrder(String customer,String orderBindId) throws IdGenerateException;
 //	JhfOrderBind  createOrderBind(String orderBindId ,String orderId,String tradeId);
