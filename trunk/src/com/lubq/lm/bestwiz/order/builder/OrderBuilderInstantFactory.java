@@ -223,7 +223,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		String boardRateStr = "100.00";
 //		String tradePriceStr = executionPriceStr;
 		String tradeTypeStr = "0";
-		String orderStatuStr = "1";
+		String orderStatuStr = "7";
 		String orderTypeStr = "0";
 
 		
