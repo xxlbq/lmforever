@@ -15,6 +15,7 @@ import cn.bestwiz.jhf.core.jms.exception.JMSException;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
+import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
 
 public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 
@@ -128,12 +129,14 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 	public void initOrder() {
 		System.out.println( " Instant order do init() ..." );
 		super.initOrder();
+		NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
 		System.out.println( " Instant order init() over ." );
 		
 	}
 
 	public void finishOrder() throws JMSException {
 		System.out.println("Opm Order finishing   ...");
+		NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
 		System.out.println("Opm Order finish   over .");
 	}
 
@@ -148,11 +151,12 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 
 			String orderbindId = IdGenerateFacade.getOrderBindId();
 			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
-
+			NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling);
 //			JhfOrderBind bind = createOrderBind(orderbindId, order.getId().getOrderId(), order.getId().getTradeId());
-
+			NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
 			writeOrder(order);
-
+			
+			NewSWTApp.increaseOrderProcess(4 * NewSWTApp.scaling); 
 //			if (null != bind) {
 //				writeOrderBind(bind);
 //			}
@@ -193,14 +197,15 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 //								.getId().getOrderId(), order.getId()
 //								.getTradeId());
 //						orderBindList.add(bind);
-
+						NewSWTApp.increaseOrderProcess(4);
 					}
 
 					// 将 order 写入db
 					writeBatchOrder(orderList);
+					NewSWTApp.increaseOrderProcess(1 * orderList.size() );
 					// 将 orderbind 写入 db
 //					writeBatchOrderBind(orderBindList);
-
+					NewSWTApp.increaseOrderProcess( 1 * orderList.size() );
 					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
 
 					// 创建orderBindInfo对象，并添加到orderBindInfoList中
