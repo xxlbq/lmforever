@@ -31,12 +31,12 @@ import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
-import com.lubq.lm.bestwiz.order.builder.OrderBuilderAbstractFactory;
-import com.lubq.lm.bestwiz.order.builder.OrderBuilderInstantFactory;
-import com.lubq.lm.bestwiz.order.builder.OrderBuilderOpmFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.MessageVenderFactory;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.bean.OrderForm;
+import com.lubq.lm.bestwiz.order.builder.service.OrderBuilderAbstractFactory;
+import com.lubq.lm.bestwiz.order.builder.service.OrderBuilderInstantService;
+import com.lubq.lm.bestwiz.order.builder.service.OrderBuilderOpmService;
 import com.lubq.lm.util.SWTResourceManager;
 import com.lubq.lm.util.StringUtil;
 
@@ -691,15 +691,15 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		
 		switch (orderVender.getExecutionType()) {
 		case 12:
-			fac = new OrderBuilderInstantFactory(sender,orderVender);
+			fac = new OrderBuilderInstantService(sender,orderVender);
 			break;
 			
 		case 0:
-			fac = new OrderBuilderOpmFactory(orderVender);
+			fac = new OrderBuilderOpmService(orderVender);
 			break;
 			
 		case 1:
-			fac = new OrderBuilderOpmFactory(orderVender);
+			fac = new OrderBuilderOpmService(orderVender);
 			break;
 			
 		case 8:

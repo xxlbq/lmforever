@@ -1,4 +1,4 @@
-package com.lubq.lm.bestwiz.order.builder;
+package com.lubq.lm.bestwiz.order.builder.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,11 +17,11 @@ import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
 
-public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
+public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 
 	private OrderBuilderMessageVender orderMessageVender =null;
 	
-	public OrderBuilderOpmFactory(OrderBuilderMessageVender orderVender) {
+	public OrderBuilderOpmService(OrderBuilderMessageVender orderVender) {
 		this.orderMessageVender = orderVender;
 		System.out.println(orderVender.toString());
 	}
@@ -231,7 +231,7 @@ public class OrderBuilderOpmFactory extends OrderBuilderAbstractFactory{
 		
 		String fullPropertyPath = OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME;
 		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(fullPropertyPath);
-		OrderBuilderOpmFactory fac = new OrderBuilderOpmFactory(orderVender);
+		OrderBuilderOpmService fac = new OrderBuilderOpmService(orderVender);
 		
 		fac.doOrder();
 		

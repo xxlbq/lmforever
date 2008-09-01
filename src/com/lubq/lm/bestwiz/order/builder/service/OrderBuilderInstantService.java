@@ -1,4 +1,4 @@
-package com.lubq.lm.bestwiz.order.builder;
+package com.lubq.lm.bestwiz.order.builder.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import com.sun.org.apache.bcel.internal.generic.NEWARRAY;
 
 
 
-public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
+public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	//成行注文需要发送 jms 给trader
 	private SimpleSender orderRequestSender 			= null;
 	private OrderBindInfo singleBindInfo 				= null;
@@ -34,7 +34,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 	
 
 	
-	public OrderBuilderInstantFactory(SimpleSender sender,OrderBuilderMessageVender orderVender) {
+	public OrderBuilderInstantService(SimpleSender sender,OrderBuilderMessageVender orderVender) {
 		this.orderRequestSender = sender;
 		this.orderMessageVender = orderVender;
 		
@@ -322,7 +322,7 @@ public class OrderBuilderInstantFactory extends OrderBuilderAbstractFactory{
 		
 		String fullPropertyPath = OrderConstants.PROPERTY_FULL_PATH+"\\"+OrderConstants.COMMON_PROPERTY_NAME;
 		OrderBuilderMessageVender orderVender = MessageVenderFactory.createOrderMsgVender(fullPropertyPath);
-		OrderBuilderInstantFactory fac = new OrderBuilderInstantFactory(sender,orderVender);
+		OrderBuilderInstantService fac = new OrderBuilderInstantService(sender,orderVender);
 		
 		fac.doOrder();
 		
