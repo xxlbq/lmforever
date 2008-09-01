@@ -1,4 +1,4 @@
-package com.lubq.lm.bestwiz.order.builder;
+package com.lubq.lm.bestwiz.order.builder.service;
 
 import java.util.List;
 
