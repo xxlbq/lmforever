@@ -3,6 +3,8 @@ package com.lubq.lm.bestwiz.order.builder.bean;
 import java.math.BigDecimal;
 import java.util.List;
 
+import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
+
 public class OrderBuilderMessageVender {
 	
 	private String customerId ;
@@ -27,7 +29,14 @@ public class OrderBuilderMessageVender {
 
 	private int executionType ;
 
+	private int tradeType;
 	
+	
+	private String topOrderId;
+	private String settleContractId;
+	
+	
+	private List<JhfAliveOrder> settleOrderList;
 	
 	public OrderBuilderMessageVender(){
 		
@@ -37,6 +46,54 @@ public class OrderBuilderMessageVender {
 	
 	
 	
+	public String getTopOrderId() {
+		return topOrderId;
+	}
+
+
+
+
+
+	public void setTopOrderId(String topOrderId) {
+		this.topOrderId = topOrderId;
+	}
+
+
+
+
+
+	public String getSettleContractId() {
+		return settleContractId;
+	}
+
+
+
+
+
+	public void setSettleContractId(String settleContractId) {
+		this.settleContractId = settleContractId;
+	}
+
+
+
+
+
+	public int getTradeType() {
+		return tradeType;
+	}
+
+
+
+
+
+	public void setTradeType(int tradeType) {
+		this.tradeType = tradeType;
+	}
+
+
+
+
+
 	public boolean isDoBatch() {
 		return doBatch;
 	}
