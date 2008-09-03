@@ -21,8 +21,15 @@ public class OrderForm {
 	private BigDecimal slippage;
 	private int executionType;
 	
+	private int tradeType;
 	
 	
+	public int getTradeType() {
+		return tradeType;
+	}
+	public void setTradeType(int tradeType) {
+		this.tradeType = tradeType;
+	}
 	public String getCustomerId() {
 		return customerId;
 	}

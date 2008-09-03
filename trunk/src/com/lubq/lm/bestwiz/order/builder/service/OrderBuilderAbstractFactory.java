@@ -16,11 +16,11 @@ import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 
 public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
-//	private PropertiesUtil propUtil;
+// private PropertiesUtil propUtil;
 	
-//	private boolean isBatch;
+// private boolean isBatch;
 //	
-//	int mode = 1 ;
+// int mode = 1 ;
 
 	private static Object lock = new Object();
 	public static final String ORDER_PREFIX = "LUBQ";
@@ -42,30 +42,31 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		System.out.println( " old orderHis  delete :"+deleteHis);
 		System.out.println( " old Contract  delete :"+deleteContract);
 
-//		int deleteHedgeCustTrade = OrderBuilderDao.deleteHedgeCustTrade();
-//		int deleteSysPosInsert = OrderBuilderDao.deleteSysPosInsert();
+// int deleteHedgeCustTrade = OrderBuilderDao.deleteHedgeCustTrade();
+// int deleteSysPosInsert = OrderBuilderDao.deleteSysPosInsert();
 	}
 
-	/**  JhfAliveOrder createOrder(String customer) throws IdGenerateException;  **/
+	/** JhfAliveOrder createOrder(String customer) throws IdGenerateException; * */
 	
 	
-//	public JhfOrderBind createOrderBind(String orderBindId,String orderId,String tradeId) {
+// public JhfOrderBind createOrderBind(String orderBindId,String orderId,String
+// tradeId) {
 //		
-//		JhfOrderBind bind = new JhfOrderBind();
+// JhfOrderBind bind = new JhfOrderBind();
 //		
-//		JhfOrderBindId id = new JhfOrderBindId();
-//		id.setOrderBindId(orderBindId);
-//		id.setOrderId(orderId);
-//		id.setTradeId(tradeId);
+// JhfOrderBindId id = new JhfOrderBindId();
+// id.setOrderBindId(orderBindId);
+// id.setOrderId(orderId);
+// id.setTradeId(tradeId);
 //		
-//		bind.setId(id);
-//		bind.setActiveFlag(BigDecimal.ONE);
-//		bind.setInputDate (new Date());
-//		bind.setUpdateDate(new Date());
+// bind.setId(id);
+// bind.setActiveFlag(BigDecimal.ONE);
+// bind.setInputDate (new Date());
+// bind.setUpdateDate(new Date());
 //		
-//		return bind;
+// return bind;
 //		
-//	}
+// }
 	
 
 
@@ -73,7 +74,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 
 
 	public void writeOrder(JhfAliveOrder order) throws DaoException {
-//		DAOFactory.getOrderDao().createOrder(order);
+// DAOFactory.getOrderDao().createOrder(order);
 		BaseMainDao bdao = new BaseMainDao();
 		bdao.save(order);
 		
@@ -86,160 +87,35 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	}
 	
 	
-//	public void writeOrderBind(JhfOrderBind bind) throws DaoException {
-//		DAOFactory.getOrderDao().createOrderBind(bind);
-//	}
+// public void writeOrderBind(JhfOrderBind bind) throws DaoException {
+// DAOFactory.getOrderDao().createOrderBind(bind);
+// }
 	
 
-//	public void writeBatchOrderBind(List<JhfOrderBind> bindList) throws DaoException {
-//		for (JhfOrderBind jhfOrderBind : bindList) {
-//			writeOrderBind(jhfOrderBind);
-//		}
-//	}
+// public void writeBatchOrderBind(List<JhfOrderBind> bindList) throws
+// DaoException {
+// for (JhfOrderBind jhfOrderBind : bindList) {
+// writeOrderBind(jhfOrderBind);
+// }
+// }
 	
 	
 	public void doOrder() throws Exception{
 		
-//		propUtil = loadProperty(getPropFullPath());
+// propUtil = loadProperty(getPropFullPath());
 		
 		initOrder();
 		service();
 		finishOrder();
 	}
-	
-//	public void service() throws Exception {
-//		
-//		initOrder();
-//		
-//		if( ! isBatch()){
-//			
-//			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
-//			
-//			JhfAliveOrder order = createOrder(getCustomerId());
-//			
-//			String orderbindId = IdGenerateFacade.getOrderBindId();
-//			JhfOrderBind bind = createOrderBind(orderbindId,order.getId().getOrderId(),order.getId().getTradeId());
-//			
-//			writeOrder(order);
-//			
-//			if(null != bind){
-//				writeOrderBind(bind);
-//			}
-//			
-//			DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
-//			DbSessionFactory.closeConnection();
-//			
-//			if(null != bind){
-//				
-//				OrderBindInfo bindInfo =  OrderBindInfoFactory.getInstance().createInfo(bind);
-//				bindInfo = this.setupOrderBindInfo(bindInfo, order);
-//				
-//				finishOrder(bindInfo);
-//			}
-//			
-//		}else{
-//			
-//			List<OrderBindInfo> orderBindInfoList = new ArrayList<OrderBindInfo>(); 
-//			//多个customerId 
-//			List<String> customerIdList = getCustomerIdList();
-//			
-//			
-//			for (String cstId : customerIdList) {
-//				
-//				for(int bindi = 0; bindi < getOrderBindListSize(); bindi++){
-//					
-//					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
-//					
-//					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
-//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
-//					//生成orderBindId ，一个bindId，对应多个orderId
-//					String orderbindId = IdGenerateFacade.getOrderBindId();
-//					
-//					for (int i = 0; i < getBatchSize(); i++) {
-//						//创建order对象，并添加到orderList中
-//						JhfAliveOrder order = createOrder(cstId);
-//						orderList.add(order);
-//						//创建orderBind对象，并添加到orderBindList中
-//						JhfOrderBind bind = createOrderBind(orderbindId,order.getId().getOrderId(),order.getId().getTradeId());
-//						orderBindList.add(bind);
-//
-//					}
-//					
-//					
-//					//将 order 写入db
-//					writeBatchOrder(orderList);
-//					//将 orderbind 写入 db
-//					writeBatchOrderBind(orderBindList);
-//	
-//					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
-//					
-//					//创建orderBindInfo对象，并添加到orderBindInfoList中
-//					OrderBindInfo bindInfo =  setupMuliOrdersOrderBindInfo(orderbindId,orderList);					
-//					
-//					orderBindInfoList.add(bindInfo);
-//				}
-//	
-//			}
-//			
-//			for (OrderBindInfo orderBindInfo : orderBindInfoList) {
-//				finishOrder(orderBindInfo);
-//			}
-//
-//			DbSessionFactory.closeConnection();
-//			
-//		}
-//	
-//	}
 
-//	public PropertiesUtil readProperty(String fullPropPath){
-//		return new PropertiesUtil(fullPropPath);
-//	}
 	
-//	public String getPropFullPath() {
-//		return getPropUtil().getPropFullPath();
-//	}
 	
-//	public String getCustomerId() {
-//		return propUtil.getStringValue("customerId");
-//	}
-
-//	public List<String> getCustomerIdList() {
-//		return propUtil.getStringListValue("customerId.list");
-//	}
+	/** void finishOrder(OrderBindInfo bindInfo) throws JMSException; * */
+	/** void finishBatchOrder(OrderBindInfo bindInfo) throws JMSException; * */
 	
 	
 	
-	
-	/**  void finishOrder(OrderBindInfo bindInfo) throws JMSException;  **/
-	/**  void finishBatchOrder(OrderBindInfo bindInfo) throws JMSException;  **/
-	
-	
-	
-	
-	
-	
-	
-//	protected int getOrderBindListSize() {
-//		return getPropUtil().getIntValue("orderBindListSize");
-//	}
-//	
-//	protected int getBatchSize(){
-//		return getPropUtil().getIntValue("orderBatchSize");
-//	}
-	
-	
-
-
-
-//	public boolean isBatch() {
-//		return isBatch;
-//	}
-//
-//	public void setBatch(boolean isBatch) {
-//		this.isBatch = isBatch;
-//	}
-
-
 	
 
 	
@@ -305,7 +181,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		bindInfo.setSlippage(null);
 		bindInfo.setPriceId(null);
 		bindInfo.setMobileFlag(false);
-		//===============
+		// ===============
 	
 		bindInfo.setCustomerId(order.getCustomerId());
 		bindInfo.setTradeId(null);
@@ -329,12 +205,16 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	}
 	
 	
-//	public static void main(String[] args) {
-//		
-//		for (int i = 0; i < 5000; i++) {
-//			System.out.println(createOrderId("00000101"));
-//		}
-//		
-//	}
+	protected String getTopOrderId(){
+		String topId = null;
+		
+		return topId;
+	}
+
+	protected String getSettleContractId(){
+		String settleContractId = null;
+			
+		return settleContractId;
+	}
 	
 }

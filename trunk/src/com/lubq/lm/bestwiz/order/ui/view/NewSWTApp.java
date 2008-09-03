@@ -56,11 +56,17 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
+	private Combo settle_pair_combo;
+	private Label settle_curPair_label;
+	private Combo settel_type_combo;
+	private Label settle_type_label;
+	private Button button1;
+	private Group settle_order_group;
 	private StyledText customerIdlist_list;
 	private Label customerIdList_label;
 	private Combo bindBatchSize_combo;
-	private Button cancel_button;
-	private Button doOrder_button;
+	private Button doOrderAndSettle_button;
+	private Button doOpenOrder_button;
 	private Combo slippage_combo;
 	private Label slippage_label;
 	private Combo executionType_combo;
@@ -113,6 +119,9 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	//
 	public static int scaling = 1;
 	public static int bindCustomerSize = 1;
+	
+	//open or settle  ( 0  or  1)
+	private int orderTradeType = 0;
 	//=================
 	
 	
@@ -149,7 +158,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			
 
 			
-			this.setSize(740, 650);
+			this.setSize(750, 800);
 			this.setBackground(SWTResourceManager.getColor(192, 192, 192));
 			this.addDisposeListener(new DisposeListener(){
 
@@ -177,15 +186,15 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 				composite1 = new Composite(this, SWT.NONE);
 				composite1.setLocation(0, 0);
 				GridData composite1LayoutData = new GridData();
-				composite1LayoutData.widthHint = 730;
-				composite1LayoutData.heightHint = 638;
+				composite1LayoutData.widthHint = 742;
+				composite1LayoutData.heightHint = 959;
 				
 				composite1.setLayoutData(composite1LayoutData);
 				composite1.setLayout(null);
 				{
 					group1 = new Group(composite1, SWT.NONE);
 					group1.setLayout(null);
-					group1.setText("customer info");
+					group1.setText("Customer Info");
 					group1.setBounds(21, 21, 644, 70);
 					{
 						customerId_text = new Text(group1, SWT.NONE);
@@ -211,7 +220,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 				{
 					group2 = new Group(composite1, SWT.NONE);
 					group2.setLayout(null);
-					group2.setText("order info");
+					group2.setText("Open Order Info");
 					group2.setBounds(21, 112, 644, 273);
 					
 					{
@@ -414,6 +423,15 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						bindBatchSize_combo.add("10",9);
 						bindBatchSize_combo.select(0);
 					}
+					{
+						doOpenOrder_button = new Button(group2, SWT.PUSH
+							| SWT.CENTER);
+						doOpenOrder_button.setText("\u65b0\u89c4\u6ce8\u6587");
+						doOpenOrder_button.setBounds(539, 245, 98, 21);
+						doOpenOrder_button.setData("ACTION_SOURCE", "OPEN");
+						doOpenOrder_button
+							.addMouseListener(new OrderMouseAdapter());
+					}
 				}
 				{
 					process_label = new Label(composite1, SWT.NONE);
@@ -456,41 +474,49 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					
 				}
 				{
-					doOrder_button = new Button(composite1, SWT.PUSH
-						| SWT.CENTER);
-					doOrder_button.setText("\u6ce8\u6587");
-					doOrder_button.setBounds(440, 544, 100, 20);
-					doOrder_button.addMouseListener(new MouseAdapter() {
-						
-						@Override
-						public void mouseDown(MouseEvent e) {
-							OrderForm of = new OrderForm();
-//							System.out.println("TEXT:"+customerIdlist_list.getText());
-							submitOrderForm(of);
-							
-							
-							if(of.isBatch()){
-								scaling = of.getOrderBatchSize() * of.getOrderBindBatchSize() * of.getCustomerIdList().size();
-								bindCustomerSize = of.getOrderBindBatchSize() * of.getCustomerIdList().size();
-								orderProcessMax = nPerOrder * scaling;
-								order_progressBar.setMaximum(orderProcessMax);
-							}else{
-								orderProcessMax = nPerOrder;
-								order_progressBar.setMaximum(orderProcessMax);
-							}
-
-							System.out.println("===============> Maximum:"+orderProcessMax+",orderprocessing:"+orderPrcoessing);
-							
-							doOrder_buttonMouseDown(of);
-						}
-
-					});
-				}
-				{
-					cancel_button = new Button(composite1, SWT.PUSH
-						| SWT.CENTER);
-					cancel_button.setText("\u53d6\u6d88");
-					cancel_button.setBounds(546, 545, 100, 20);
+					settle_order_group = new Group(composite1, SWT.NONE);
+					settle_order_group.setLayout(null);
+					settle_order_group.setText("Settle Order Info");
+					settle_order_group.setBounds(22, 434, 644, 203);
+					{
+						doOrderAndSettle_button = new Button(settle_order_group,SWT.PUSH | SWT.CENTER);
+						doOrderAndSettle_button.setText("\u51b3\u8ba1\u6ce8\u6587");
+						doOrderAndSettle_button.setBounds(545, 24, 98, 21);
+						doOrderAndSettle_button.setData("ACTION_SOURCE", "SETTLE");
+						doOrderAndSettle_button.addMouseListener(new OrderMouseAdapter());
+					}
+					{
+						settle_type_label = new Label(
+							settle_order_group,
+							SWT.NONE);
+						settle_type_label.setText("settle type :");
+						settle_type_label.setBounds(14, 24, 63, 15);
+					}
+					{
+						settel_type_combo = new Combo(settle_order_group,SWT.READ_ONLY);
+						settel_type_combo.setBounds(91, 21, 63, 21);
+						settel_type_combo.add("NORMAL",0);
+						settel_type_combo.add("EMER",1);
+						settel_type_combo.add("LOSSCUT",2);
+						settel_type_combo.select(0);
+					}
+					{
+						settle_curPair_label = new Label(
+							settle_order_group,
+							SWT.NONE);
+						settle_curPair_label.setText("settle currency pair :");
+						settle_curPair_label.setBounds(189, 24, 100, 15);
+					}
+					{
+						settle_pair_combo = new Combo(
+							settle_order_group,
+							SWT.NONE);
+						settle_pair_combo.setBounds(301, 21, 63, 21);
+						settle_pair_combo.add("USD/JPY", 0);
+						settle_pair_combo.add("EUR/JPY", 1);
+						settle_pair_combo.add("EUR/USD", 2);
+						settle_pair_combo.add("AUD/USD", 3);
+					}
 				}
 			}
 			{
@@ -569,7 +595,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		BigDecimal slippage = new BigDecimal(this.getSlippage_combo().getText());
 		int executionTypeIndex = this.getExecutionType_combo().getSelectionIndex();
 		
-		
+		int tradeType = this.orderTradeType;
 		
 //		for (String string : cIdList) {
 //			
@@ -592,6 +618,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		of.setSlippage(slippage);
 		of.setExecutionType(executionTypeIndex);		
 
+		of.setTradeType(tradeType);
 		
 	}
 
@@ -947,6 +974,62 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	}
 	
+	private void doOrderAndSettle_buttonMouseUp(MouseEvent evt) {
+		System.out.println("doOrderAndSettle_button.mouseUp, event=" + evt);
+		//TODO add your code for doOrderAndSettle_button.mouseUp
+	}
 	
 	
+	
+	class OrderMouseAdapter extends MouseAdapter{
+
+		@Override
+		public void mouseDoubleClick(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mouseDoubleClick(e);
+		}
+
+		@Override
+		public void mouseDown(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mouseDown(e);
+		}
+
+
+
+			
+		@Override
+		public void mouseUp(MouseEvent e) {
+			
+			if(((Button)e.getSource()).getData("ACTION_SOURCE").equals("SETTLE")){
+				orderTradeType = 1;
+			}else{
+				System.out.println("click   open    button");
+			}
+			
+			OrderForm of = new OrderForm();
+			// System.out.println("TEXT:"+customerIdlist_list.getText());
+			submitOrderForm(of);
+
+			if (of.isBatch()) {
+				scaling = of.getOrderBatchSize() * of.getOrderBindBatchSize()
+						* of.getCustomerIdList().size();
+				bindCustomerSize = of.getOrderBindBatchSize()
+						* of.getCustomerIdList().size();
+				orderProcessMax = nPerOrder * scaling;
+				order_progressBar.setMaximum(orderProcessMax);
+			} else {
+				orderProcessMax = nPerOrder;
+				order_progressBar.setMaximum(orderProcessMax);
+			}
+
+			System.out.println("===============> Maximum:" + orderProcessMax
+					+ ",orderprocessing:" + orderPrcoessing);
+
+			doOrder_buttonMouseDown(of);
+
+		}
+
+	}
+
 }

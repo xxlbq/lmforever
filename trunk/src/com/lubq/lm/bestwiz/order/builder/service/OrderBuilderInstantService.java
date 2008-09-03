@@ -129,84 +129,93 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 
 		System.out.println("isBatch:"+getOrderBuilderMessageVender().isDoBatch());
 		
-		if ( ! orderMessageVender.isDoBatch()) {
+		//新规
+		if(orderMessageVender.getTradeType() == 0){
+
 			
-			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
-
-			String orderbindId = IdGenerateFacade.getOrderBindId();
-			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
-			NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
-			
-			singleBindInfo = buildSingleOrderBindInfo(orderbindId, order);
-			NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
-			
-			writeOrder(order);
-			NewSWTApp.increaseOrderProcess(4 * NewSWTApp.scaling); 
-
-//			if (null != bind) {
-//				writeOrderBind(bind);
-//			}
-
-			DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
-			DbSessionFactory.closeConnection();
-
-//			if (null != bind) {
-//
-//				singleBindInfo = OrderBindInfoFactory.getInstance().createInfo(bind);
-//				singleBindInfo = setupOrderBindInfo(singleBindInfo, order);
-//
-//			}
-
-		} else {
-
-			muliBindInfoList = new ArrayList<OrderBindInfo>();
-			// 多个customerId
-			List<String> customerIdList = orderMessageVender.getCustomerIdList();
-
-			for (String cstId : customerIdList) {
-
-				for (int bindi = 0; bindi < orderMessageVender.getOrderBindBatchSize(); bindi++) {
-
-					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
-
-					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
-//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
-					// 生成orderBindId ，一个bindId，对应多个orderId
-					String orderbindId = IdGenerateFacade.getOrderBindId();
-
-					for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
-						// 创建order对象，并添加到orderList中
-						JhfAliveOrder order = createOrder(cstId,orderbindId);
-						orderList.add(order);
-						NewSWTApp.increaseOrderProcess(4); 
-
-						// 创建orderBind对象，并添加到orderBindList中
-//						JhfOrderBind bind = createOrderBind(orderbindId, order
-//								.getId().getOrderId(), order.getId()
-//								.getTradeId());
-//						orderBindList.add(bind);
-
+			if ( ! orderMessageVender.isDoBatch()) {
+				
+				DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
+	
+				String orderbindId = IdGenerateFacade.getOrderBindId();
+				JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
+				NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
+				
+				singleBindInfo = buildSingleOrderBindInfo(orderbindId, order);
+				NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
+				
+				writeOrder(order);
+				NewSWTApp.increaseOrderProcess(4 * NewSWTApp.scaling); 
+	
+	//			if (null != bind) {
+	//				writeOrderBind(bind);
+	//			}
+	
+				DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+				DbSessionFactory.closeConnection();
+	
+	//			if (null != bind) {
+	//
+	//				singleBindInfo = OrderBindInfoFactory.getInstance().createInfo(bind);
+	//				singleBindInfo = setupOrderBindInfo(singleBindInfo, order);
+	//
+	//			}
+	
+			} else {
+	
+				muliBindInfoList = new ArrayList<OrderBindInfo>();
+				// 多个customerId
+				List<String> customerIdList = orderMessageVender.getCustomerIdList();
+	
+				for (String cstId : customerIdList) {
+	
+					for (int bindi = 0; bindi < orderMessageVender.getOrderBindBatchSize(); bindi++) {
+	
+						DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
+	
+						List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
+	//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
+						// 生成orderBindId ，一个bindId，对应多个orderId
+						String orderbindId = IdGenerateFacade.getOrderBindId();
+	
+						for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
+							// 创建order对象，并添加到orderList中
+							JhfAliveOrder order = createOrder(cstId,orderbindId);
+							orderList.add(order);
+							NewSWTApp.increaseOrderProcess(4); 
+	
+							// 创建orderBind对象，并添加到orderBindList中
+	//						JhfOrderBind bind = createOrderBind(orderbindId, order
+	//								.getId().getOrderId(), order.getId()
+	//								.getTradeId());
+	//						orderBindList.add(bind);
+	
+						}
+						System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +NewSWTApp.orderPrcoessing);
+						// 将 order 写入db
+						writeBatchOrder(orderList);
+						NewSWTApp.increaseOrderProcess(1 * orderList.size() ); 
+						// 将 orderbind 写入 db
+	//					writeBatchOrderBind(orderBindList);
+	
+						DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+	
+						// 创建orderBindInfo对象，并添加到orderBindInfoList中
+						OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId, orderList);
+						NewSWTApp.increaseOrderProcess( 1 * orderList.size() );
+						muliBindInfoList.add(bindInfo);
 					}
-					System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +NewSWTApp.orderPrcoessing);
-					// 将 order 写入db
-					writeBatchOrder(orderList);
-					NewSWTApp.increaseOrderProcess(1 * orderList.size() ); 
-					// 将 orderbind 写入 db
-//					writeBatchOrderBind(orderBindList);
-
-					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
-
-					// 创建orderBindInfo对象，并添加到orderBindInfoList中
-					OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId, orderList);
-					NewSWTApp.increaseOrderProcess( 1 * orderList.size() );
-					muliBindInfoList.add(bindInfo);
+					System.out.println("after customer:"+cstId+" , orderPrcoessing:"+NewSWTApp.orderPrcoessing);
 				}
-				System.out.println("after customer:"+cstId+" , orderPrcoessing:"+NewSWTApp.orderPrcoessing);
+	
+	
+				DbSessionFactory.closeConnection();
+	
 			}
-
-
-			DbSessionFactory.closeConnection();
-
+		
+		
+		}else{//决计
+//			List<> = orderMessageVender.getCustomerId();
 		}
 
 	}
@@ -257,6 +266,11 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		order.setCustomerOrderNo(IdGenerateFacade.obtainCustomerOrderNo(orderMessageVender.getCustomerId()));
 		
 
+//		if(orderMessageVender.getTradeType() == 1){
+//			order.setTopOrderId(topOrderId);
+//			order.setSettleContractId(settleContractId);
+//		}
+		
 		// < ===========
 		
 		
@@ -288,7 +302,7 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		order.setInputStaffId("system");
 		order.setAgentStaffId("system");
 		order.setActivationDate(new Date());
-//		order.setTopOrderId("520");
+		order.setTopOrderId("520");
 		
 		
 		return order;

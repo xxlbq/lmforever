@@ -72,7 +72,7 @@ public class MessageVenderFactory {
 		orderVender.setSlippage(of.getSlippage());
 		orderVender.setExecutionType(of.getExecutionType());
 		
-		
+		orderVender.setTradeType(of.getTradeType());
 		
 		return orderVender;
 	}
