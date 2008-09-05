@@ -42,7 +42,7 @@ public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 
 
 
-	public JhfAliveOrder createOrder(String customer,String orderBindId)
+	public JhfAliveOrder createOpenOrder(String customer,String orderBindId)
 			throws IdGenerateException {
 		return getOpmOrder(customer,orderBindId);
 	}
@@ -150,7 +150,7 @@ public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 			DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
 			String orderbindId = IdGenerateFacade.getOrderBindId();
-			JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
+			JhfAliveOrder order = createOpenOrder(orderMessageVender.getCustomerId(),orderbindId);
 			NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling);
 //			JhfOrderBind bind = createOrderBind(orderbindId, order.getId().getOrderId(), order.getId().getTradeId());
 			NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
@@ -190,7 +190,7 @@ public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 
 					for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
 						// 创建order对象，并添加到orderList中
-						JhfAliveOrder order = createOrder(cstId,orderbindId);
+						JhfAliveOrder order = createOpenOrder(cstId,orderbindId);
 						orderList.add(order);
 						// 创建orderBind对象，并添加到orderBindList中
 //						JhfOrderBind bind = createOrderBind(orderbindId, order

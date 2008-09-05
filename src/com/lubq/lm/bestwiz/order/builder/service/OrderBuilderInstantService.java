@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+
+
+
+
+
+import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
+import cn.bestwiz.jhf.core.dao.DAOFactory;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveContract;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrderId;
 import cn.bestwiz.jhf.core.dao.util.DbSessionFactory;
@@ -20,6 +29,7 @@ import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
 import com.lubq.lm.bestwiz.order.builder.cons.OrderConstants;
 import com.lubq.lm.bestwiz.order.builder.dao.OrderBuilderDao;
 import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
+import com.lubq.lm.util.CommonExtension;
 import com.sun.org.apache.bcel.internal.generic.NEWARRAY;
 
 
@@ -57,11 +67,13 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 
 
 	
-	public JhfAliveOrder createOrder(String customer,String orderBindId) throws IdGenerateException {
-		return getInstantsOrder(customer,orderBindId);
+	public JhfAliveOrder createOpenOrder(String customer,String orderBindId) throws IdGenerateException {
+		return getOpenInstantsOrder(customer,orderBindId);
 	}
 
-
+	public JhfAliveOrder createSettleOrder(String customer,String orderBindId,JhfAliveContract contract) throws IdGenerateException {
+		return getSettleInstantsOrder(customer,orderBindId,contract);
+	}
 
 
 
@@ -138,7 +150,7 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 				DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 	
 				String orderbindId = IdGenerateFacade.getOrderBindId();
-				JhfAliveOrder order = createOrder(orderMessageVender.getCustomerId(),orderbindId);
+				JhfAliveOrder order = createOpenOrder(orderMessageVender.getCustomerId(),orderbindId);
 				NewSWTApp.increaseOrderProcess(1 * NewSWTApp.scaling); 
 				
 				singleBindInfo = buildSingleOrderBindInfo(orderbindId, order);
@@ -173,15 +185,15 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	
 						DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 	
-						List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
+						List<JhfAliveOrder> settleOrderList = new ArrayList<JhfAliveOrder>();
 	//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
 						// 生成orderBindId ，一个bindId，对应多个orderId
 						String orderbindId = IdGenerateFacade.getOrderBindId();
-	
-						for (int i = 0; i < orderMessageVender.getOrderBatchSize(); i++) {
+						int settleOrderSize = orderMessageVender.getSettleOrderList().size();
+						for (int i = 0; i < settleOrderSize; i++) {
 							// 创建order对象，并添加到orderList中
-							JhfAliveOrder order = createOrder(cstId,orderbindId);
-							orderList.add(order);
+							JhfAliveOrder order = createOpenOrder(cstId,orderbindId);
+							settleOrderList.add(order);
 							NewSWTApp.increaseOrderProcess(4); 
 	
 							// 创建orderBind对象，并添加到orderBindList中
@@ -193,16 +205,16 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 						}
 						System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +NewSWTApp.orderPrcoessing);
 						// 将 order 写入db
-						writeBatchOrder(orderList);
-						NewSWTApp.increaseOrderProcess(1 * orderList.size() ); 
+						writeBatchOrder(settleOrderList);
+						NewSWTApp.increaseOrderProcess(1 * settleOrderList.size() ); 
 						// 将 orderbind 写入 db
 	//					writeBatchOrderBind(orderBindList);
 	
 						DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
 	
 						// 创建orderBindInfo对象，并添加到orderBindInfoList中
-						OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId, orderList);
-						NewSWTApp.increaseOrderProcess( 1 * orderList.size() );
+						OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId, settleOrderList);
+						NewSWTApp.increaseOrderProcess( 1 * settleOrderList.size() );
 						muliBindInfoList.add(bindInfo);
 					}
 					System.out.println("after customer:"+cstId+" , orderPrcoessing:"+NewSWTApp.orderPrcoessing);
@@ -215,7 +227,65 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		
 		
 		}else{//决计
-//			List<> = orderMessageVender.getCustomerId();
+
+			
+			muliBindInfoList = new ArrayList<OrderBindInfo>();
+			// 多个customerId
+			List<String> customerIdList = orderMessageVender.getCustomerIdList();
+
+			if(CommonExtension.collectionIsEmpty((customerIdList))){
+				customerIdList.add(orderMessageVender.getCustomerId());
+			}
+			
+			for (String cstId : customerIdList) {
+
+//				for (int bindi = 0; bindi < orderMessageVender.getOrderBindBatchSize(); bindi++) {
+
+					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
+
+					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
+					List<JhfAliveContract> contractList = getContractByCustomerId(orderMessageVender);
+					
+//					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
+					// 生成orderBindId ，一个bindId，对应多个orderId
+					String orderbindId = IdGenerateFacade.getOrderBindId();
+					int contractSize = contractList.size();
+					
+					for (int i = 0; i < contractSize; i++) {
+						// 创建order对象，并添加到orderList中
+						JhfAliveOrder order = createSettleOrder(cstId,orderbindId,contractList.get(i));
+						orderList.add(order);
+						NewSWTApp.increaseOrderProcess(4); 
+
+						// 创建orderBind对象，并添加到orderBindList中
+//						JhfOrderBind bind = createOrderBind(orderbindId, order
+//								.getId().getOrderId(), order.getId()
+//								.getTradeId());
+//						orderBindList.add(bind);
+
+					}
+					
+					System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +NewSWTApp.orderPrcoessing);
+					// 将 order 写入db
+					writeBatchOrder(orderList);
+					NewSWTApp.increaseOrderProcess(1 * orderList.size() ); 
+					// 将 orderbind 写入 db
+//					writeBatchOrderBind(orderBindList);
+
+					DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+
+					// 创建orderBindInfo对象，并添加到orderBindInfoList中
+					OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId, orderList);
+					NewSWTApp.increaseOrderProcess( 1 * orderList.size() );
+					muliBindInfoList.add(bindInfo);
+//				}
+				System.out.println("after customer:"+cstId+" , orderPrcoessing:"+NewSWTApp.orderPrcoessing);
+			}
+
+
+			DbSessionFactory.closeConnection();
+
+		
 		}
 
 	}
@@ -227,13 +297,13 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	
 	
 	
-	public   JhfAliveOrder getInstantsOrder(String customerId,String orderBindId) throws IdGenerateException{
+	public   JhfAliveOrder getOpenInstantsOrder(String customerId,String orderBindId) throws IdGenerateException{
 		
 //		String orderPriceStr = "200.10";
 //		String executionPriceStr = "100.00";
 		String boardRateStr = "100.00";
 //		String tradePriceStr = executionPriceStr;
-		String tradeTypeStr = "0";
+//		String tradeTypeStr = "0";
 		String orderStatuStr = "7";
 		String orderTypeStr = "0";
 
@@ -264,6 +334,7 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		order.setOrderType(new BigDecimal(orderTypeStr));
 		order.setSide(new BigDecimal(String.valueOf( orderMessageVender.getSide() )));
 		order.setCustomerOrderNo(IdGenerateFacade.obtainCustomerOrderNo(orderMessageVender.getCustomerId()));
+		order.setTradeType(BigDecimal.valueOf(orderMessageVender.getTradeType()));
 		
 
 //		if(orderMessageVender.getTradeType() == 1){
@@ -291,7 +362,6 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		order.setUpdateDate(new Date());
 		order.setUpdateStaffId("[lubq]");
 		order.setOrderDatetime(new Date());
-		order.setTradeType(new BigDecimal(tradeTypeStr));
 		order.setChangeReason(new BigDecimal("1"));
 		order.setForceRelationId(order.getCustomerOrderNo());
 		order.setForceRelationFlag(BigDecimal.ZERO);
@@ -309,7 +379,28 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	}
 
 	
-	
+	public   JhfAliveOrder getSettleInstantsOrder(String customerId,String orderBindId,JhfAliveContract contract) throws IdGenerateException{
+		
+		orderMessageVender.setAmount(contract.getAmountNoSettled());
+		orderMessageVender.setSide(contract.getSide().negate().intValue());
+		orderMessageVender.setOrderPrice(contract.getOrderPrice());
+		orderMessageVender.setSlippage(new BigDecimal("0.99"));
+		
+		orderMessageVender.setDoBatch(true);
+		
+		JhfAliveOrder order = getOpenInstantsOrder(customerId,orderBindId);
+		
+		
+		order.setTopOrderId(contract.getOrderId());
+		order.setSettleContractId(contract.getContractId());
+//		order.setOrderAmount(contract.getAmountNoSettled());
+//		order.setSide(contract.getSide().negate());
+		
+		
+		System.out.println("orderId:"+order.getId().getOrderId()+",orderSide:"+order.getSide()
+				+",contractId:"+contract.getContractId() + ",contractSide:"+contract.getSide());
+		return order;
+	}
 	
 
 	public OrderBuilderMessageVender getOrderBuilderMessageVender() {
@@ -318,6 +409,16 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	}
 
 
+	
+	private List<JhfAliveContract> getContractByCustomerId(OrderBuilderMessageVender msg){
+		List<JhfAliveContract> contractList = null;
+		try {
+			contractList = DAOFactory.getContractDao().getContractsByCustomerId(msg.getCustomerId());
+		} catch (DaoException e) {
+			e.printStackTrace();
+		}
+		return contractList;
+	}
 	
 	
 //	public static void main(String[] args) {

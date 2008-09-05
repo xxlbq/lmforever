@@ -20,10 +20,20 @@ public class OrderForm {
 	
 	private BigDecimal slippage;
 	private int executionType;
+	private int settleExecutionType;
+	
+	
 	
 	private int tradeType;
 	
 	
+	
+	public int getSettleExecutionType() {
+		return settleExecutionType;
+	}
+	public void setSettleExecutionType(int settleExecutionTypeIndex) {
+		this.settleExecutionType = ComboConstants.settleExecutionTypeArr[settleExecutionTypeIndex];;
+	}
 	public int getTradeType() {
 		return tradeType;
 	}
