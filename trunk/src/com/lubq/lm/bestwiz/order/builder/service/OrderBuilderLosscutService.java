@@ -10,7 +10,7 @@ public class OrderBuilderLosscutService extends OrderBuilderAbstractFactory{
 
 	
 	
-	public JhfAliveOrder createOrder(String customer, String orderBindId)
+	public JhfAliveOrder createOpenOrder(String customer, String orderBindId)
 			throws IdGenerateException {
 		// TODO Auto-generated method stub
 		return null;

@@ -17,7 +17,7 @@ public class StringUtil {
 			return new ArrayList<String>();
 		}
 		
-		System.out.println("Sring :"+str+", dem:"+dem);
+		System.out.println("Sring :["+str+"], dem:"+dem);
 		return Arrays.asList(str.split(dem));
 	}
 
@@ -51,9 +51,14 @@ public class StringUtil {
 	}
 	
 	public static void main(String[] args) {
-		List< String> list = StringUtil.splitString("i am a man.\n you are a not man \n,pig .", "\n");
+//		List< String> list = StringUtil.splitString("i am a man.\n you are a not man \n,pig .", "\n");
+		List< String> list = StringUtil.splitString("\r\n \r\n", "\r\n");
 		for (String string : list) {
 			System.out.println(string);
 		}
 	}
+	
+	
+	
+	
 }

@@ -60,7 +60,6 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	private Label settle_curPair_label;
 	private Combo settel_type_combo;
 	private Label settle_type_label;
-	private Button button1;
 	private Group settle_order_group;
 	private StyledText customerIdlist_list;
 	private Label customerIdList_label;
@@ -428,21 +427,21 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 							| SWT.CENTER);
 						doOpenOrder_button.setText("\u65b0\u89c4\u6ce8\u6587");
 						doOpenOrder_button.setBounds(539, 245, 98, 21);
-						doOpenOrder_button.setData("ACTION_SOURCE", "OPEN");
+//						doOpenOrder_button.setData("ACTION_SOURCE", "OPEN");
 						doOpenOrder_button
-							.addMouseListener(new OrderMouseAdapter());
+							.addMouseListener(new OpenOrderMouseAdapter());
 					}
 				}
 				{
 					process_label = new Label(composite1, SWT.NONE);
 					process_label.setText("processing ... ");
-					process_label.setBounds(7, 588, 63, 14);
+					process_label.setBounds(7, 720, 63, 14);
 					process_label.setVisible(false);
 					
 				}
 				{
 					order_progressBar = new ProgressBar(composite1, SWT.HORIZONTAL | SWT.SMOOTH);
-					order_progressBar.setBounds(7, 609, 707, 14);
+					order_progressBar.setBounds(7, 749, 728, 14);
 					order_progressBar.setMinimum(orderProcessMin);
 //					order_progressBar.setMaximum(orderProcessMax);
 					order_progressBar.setVisible(false);
@@ -481,9 +480,9 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 					{
 						doOrderAndSettle_button = new Button(settle_order_group,SWT.PUSH | SWT.CENTER);
 						doOrderAndSettle_button.setText("\u51b3\u8ba1\u6ce8\u6587");
-						doOrderAndSettle_button.setBounds(545, 24, 98, 21);
-						doOrderAndSettle_button.setData("ACTION_SOURCE", "SETTLE");
-						doOrderAndSettle_button.addMouseListener(new OrderMouseAdapter());
+						doOrderAndSettle_button.setBounds(539, 17, 98, 21);
+//						doOrderAndSettle_button.setData("ACTION_SOURCE", "SETTLE");
+						doOrderAndSettle_button.addMouseListener(new SettleOrderMouseAdapter());
 					}
 					{
 						settle_type_label = new Label(
@@ -516,6 +515,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						settle_pair_combo.add("EUR/JPY", 1);
 						settle_pair_combo.add("EUR/USD", 2);
 						settle_pair_combo.add("AUD/USD", 3);
+						settle_pair_combo.add("ALL",4);
 					}
 				}
 			}
@@ -577,7 +577,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	
 
 
-	protected void submitOrderForm(OrderForm of) {
+	protected void submitOpenOrderForm(OrderForm of) {
 		
 //		System.out.println("========:"+this.getCustomerIdlist_list().getText());
 		
@@ -623,6 +623,53 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	}
 
 	
+	
+	protected void submitSettleOrderForm(OrderForm of) {
+		
+//		System.out.println("========:"+this.getCustomerIdlist_list().getText());
+		
+		String 	cId 	= this.getCustomerId_text().getText();
+		java.util.List<String> cIdList = StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
+		String 	settleCurrencyPair = this.getSettle_pair_combo().getText();
+		
+//		int 	sideIndex 	= this.getSide_combo().getSelectionIndex();
+//		int     orderBatchSize = Integer.parseInt( this.getOrderBatchSize_combo().getText() );
+//		int     orderBindBatchSize = Integer.parseInt( this.getBindBatchSize_combo().getText() );
+//		boolean isBatch = Boolean.valueOf( this.getIsBatch_combo().getText() );
+//		int  	mode = this.getMode_combo().getSelectionIndex();
+//		BigDecimal orderPrice = new BigDecimal( this.getOrderPrice_text().getText() );
+//		BigDecimal orderAmount = new BigDecimal(this.getOrderAmount_combo().getText());
+//		
+//		BigDecimal slippage = new BigDecimal(this.getSlippage_combo().getText());
+		int executionTypeIndex = this.getSettel_type_combo().getSelectionIndex();
+//		
+//		int tradeType = this.orderTradeType;
+		
+//		for (String string : cIdList) {
+//			
+//			System.out.println("FOR  cid:"+string);
+//		}
+		
+		
+		
+		
+		of.setCustomerId(cId);
+		of.setCustomerIdList(cIdList);
+		of.setCurrencyPair(settleCurrencyPair);
+//		of.setSide(sideIndex);
+//		of.setOrderBatchSize(orderBatchSize);
+//		of.setOrderBindBatchSize(orderBindBatchSize);
+//		of.setBatch(isBatch);
+//		of.setMode(mode);
+//		of.setOrderPrice(orderPrice);
+//		of.setOrderAmount(orderAmount);
+//		of.setSlippage(slippage);
+		of.setSettleExecutionType(executionTypeIndex);		
+		of.setExecutionType(executionTypeIndex);		
+//
+		of.setTradeType( 1 );
+		
+	}
 	
 	
 	
@@ -673,7 +720,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		
 	}
 	
-	private void doOrder_buttonMouseDown(OrderForm of) {
+	private void doOpenOrder_buttonMouseDown(OrderForm of) {
 		
 		System.out.println("button fire .....");
 		final OrderForm form = of;
@@ -689,7 +736,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 				});
 				
-				doUIorder(form);
+				doUIOpenorder(form);
 				
 			}
 			
@@ -705,7 +752,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 
 
-	protected void doUIorder(OrderForm of) {
+	protected void doUIOpenorder(OrderForm of) {
 		
 		try {
 			sender = SimpleSender.getInstance(DestinationConstant.OrderRequestQueue);
@@ -879,6 +926,22 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 
 
+	public Combo getSettle_pair_combo() {
+		return settle_pair_combo;
+	}
+
+	public void setSettle_pair_combo(Combo settle_pair_combo) {
+		this.settle_pair_combo = settle_pair_combo;
+	}
+
+	public Combo getSettel_type_combo() {
+		return settel_type_combo;
+	}
+
+	public void setSettel_type_combo(Combo settel_type_combo) {
+		this.settel_type_combo = settel_type_combo;
+	}
+
 	public Combo getExecutionType_combo() {
 		return executionType_combo;
 	}
@@ -981,7 +1044,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	
 	
 	
-	class OrderMouseAdapter extends MouseAdapter{
+	class OpenOrderMouseAdapter extends MouseAdapter{
 
 		@Override
 		public void mouseDoubleClick(MouseEvent e) {
@@ -1001,15 +1064,57 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		@Override
 		public void mouseUp(MouseEvent e) {
 			
-			if(((Button)e.getSource()).getData("ACTION_SOURCE").equals("SETTLE")){
-				orderTradeType = 1;
-			}else{
-				System.out.println("click   open    button");
+			OrderForm of = new OrderForm();
+			// System.out.println("TEXT:"+customerIdlist_list.getText());
+			submitOpenOrderForm(of);
+			
+			if (of.isBatch()) {
+				scaling = of.getOrderBatchSize() * of.getOrderBindBatchSize()
+						* of.getCustomerIdList().size();
+				bindCustomerSize = of.getOrderBindBatchSize()
+						* of.getCustomerIdList().size();
+				orderProcessMax = nPerOrder * scaling;
+				order_progressBar.setMaximum(orderProcessMax);
+			} else {
+				orderProcessMax = nPerOrder;
+				order_progressBar.setMaximum(orderProcessMax);
 			}
+
+			System.out.println("===============> Maximum:" + orderProcessMax
+					+ ",orderprocessing:" + orderPrcoessing);
+
+			doOpenOrder_buttonMouseDown(of);
+
+		}
+
+	}
+
+	
+	
+	class SettleOrderMouseAdapter extends MouseAdapter{
+
+		@Override
+		public void mouseDoubleClick(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mouseDoubleClick(e);
+		}
+
+		@Override
+		public void mouseDown(MouseEvent e) {
+			// TODO Auto-generated method stub
+			super.mouseDown(e);
+		}
+
+
+
+			
+		@Override
+		public void mouseUp(MouseEvent e) {
+
 			
 			OrderForm of = new OrderForm();
 			// System.out.println("TEXT:"+customerIdlist_list.getText());
-			submitOrderForm(of);
+			submitSettleOrderForm(of);
 
 			if (of.isBatch()) {
 				scaling = of.getOrderBatchSize() * of.getOrderBindBatchSize()
@@ -1026,10 +1131,35 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 			System.out.println("===============> Maximum:" + orderProcessMax
 					+ ",orderprocessing:" + orderPrcoessing);
 
-			doOrder_buttonMouseDown(of);
+			doSettleOrder_buttonMouseDown(of);
 
 		}
 
-	}
+		private void doSettleOrder_buttonMouseDown(OrderForm of) {
+			
+			System.out.println("button fire .....");
+			final OrderForm form = of;
+			new Thread() {
+				public void run() {
 
+					Display.getDefault().asyncExec(new Runnable() {
+						public void run() {
+							showProcessStuff();
+//							new OrderRuningOperation().start();
+							new LongRunningOperation().start();
+						}
+
+					});
+					
+					doUIOpenorder(form);
+					
+				}
+				
+			}.start();
+
+		
+			
+		}
+
+	}
 }

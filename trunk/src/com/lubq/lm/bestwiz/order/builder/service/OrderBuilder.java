@@ -15,7 +15,7 @@ public interface OrderBuilder {
 	//order 执行前初始化方法
 	void initOrder();
 
-	JhfAliveOrder createOrder(String customer,String orderBindId) throws IdGenerateException;
+	JhfAliveOrder createOpenOrder(String customer,String orderBindId) throws IdGenerateException;
 //	JhfOrderBind  createOrderBind(String orderBindId ,String orderId,String tradeId);
 //	OrderBindInfo createOrderBindInfo(String orderBindId ,JhfAliveOrder order);
 

@@ -46,6 +46,22 @@ public class OrderBuilderMessageVender {
 	
 	
 	
+	public List<JhfAliveOrder> getSettleOrderList() {
+		return settleOrderList;
+	}
+
+
+
+
+
+	public void setSettleOrderList(List<JhfAliveOrder> settleOrderList) {
+		this.settleOrderList = settleOrderList;
+	}
+
+
+
+
+
 	public String getTopOrderId() {
 		return topOrderId;
 	}

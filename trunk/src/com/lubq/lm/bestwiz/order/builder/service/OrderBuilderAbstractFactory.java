@@ -36,7 +36,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		int deleteOldExecution = OrderBuilderDao.deleteExecution(OrderBuilderAbstractFactory.ORDER_PREFIX);
 		int deleteHis = OrderBuilderDao.deleteOrderStatusHis(OrderBuilderAbstractFactory.ORDER_PREFIX);
 		int deleteContract = OrderBuilderDao.deleteContract(OrderBuilderAbstractFactory.ORDER_PREFIX);
-		
+//		
 		System.out.println( " old order     delete :"+deleteOldOrder);
 		System.out.println( " old Execution delete :"+deleteOldExecution);
 		System.out.println( " old orderHis  delete :"+deleteHis);
