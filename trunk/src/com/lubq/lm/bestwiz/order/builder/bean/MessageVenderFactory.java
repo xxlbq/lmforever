@@ -38,28 +38,12 @@ public class MessageVenderFactory {
 	public static OrderBuilderMessageVender createOrderMsgVender(OrderForm of) {
 		
 		OrderBuilderMessageVender orderVender = new OrderBuilderMessageVender();
-		
-//		String 	cId 	= app.getCustomerId_text().getText();
-//		List<String> cIdList = Arrays.asList(app.getCustomerIdlist_list().getItems());
-//		String 	currencyPair = app.getCurrencyPair_combo().getText();
-//		int 	sideIndex 	= app.getSide_combo().getSelectionIndex();
-//		int     orderBatchSize = Integer.parseInt( app.getOrderBatchSize_combo().getText() );
-//		int     orderBindBatchSize = Integer.parseInt( app.getBindBatchSize_combo().getText() );
-//		boolean isBatch = Boolean.valueOf( app.getIsBatch_combo().getText() );
-//		int  	mode = app.getMode_combo().getSelectionIndex();
-//		BigDecimal orderPrice = new BigDecimal( app.getOrderPrice_text().getText() );
-//		BigDecimal orderAmount = new BigDecimal(app.getOrderAmount_combo().getText());
-//		
-//		BigDecimal slippage = new BigDecimal(app.getSlippage_combo().getText());
-//		int executionTypeIndex = app.getExecutionType_combo().getSelectionIndex();
-//		
-//		
 
 		
 		orderVender.setCustomerId(  
-				StringUtil.customerStringCheck(of.getCustomerId()) );
+				StringUtil.customerStringCheck( of.getCustomerId() ) );
 		orderVender.setCustomerIdList(
-				StringUtil.customerStringListCheck( of.getCustomerIdList()));
+				StringUtil.customerStringListCheck( of.getCustomerIdList()       ));
 		
 		orderVender.setCurrencyPair(of.getCurrencyPair());
 		orderVender.setSide(of.getSide());

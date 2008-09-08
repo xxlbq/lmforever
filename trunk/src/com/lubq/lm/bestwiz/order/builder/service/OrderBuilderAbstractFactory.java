@@ -191,13 +191,19 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		
 	}
 	
+	
+	/** 构造一个 有特殊标记的 Order ID
+	 * @author lubq <lubq@bestwiz.cn>
+	 * @param customer
+	 * @return
+	 */
 	public static  String  createOrderId(String customer){
 		
 		StringBuffer orderId = new StringBuffer(customer);
 		orderId.append(ORDER_PREFIX);
-		orderId.append(df.format(ORDER_NUMBER));
 		
 		synchronized (lock) {
+			orderId.append(df.format(ORDER_NUMBER));
 			ORDER_NUMBER ++ ;
 		}
 		
