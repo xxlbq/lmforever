@@ -11,6 +11,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 
 
+import cn.bestwiz.jhf.core.bo.enums.OrderTypeEnum;
+import cn.bestwiz.jhf.core.bo.enums.TradeTypeEnum;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.DAOFactory;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveContract;
@@ -68,7 +70,8 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 
 	
 	public JhfAliveOrder createOpenOrder(String customer,String orderBindId) throws IdGenerateException {
-		return getOpenInstantsOrder(customer,orderBindId);
+		
+		return getCommonInstantsOrder(customer,orderBindId);
 	}
 
 	public JhfAliveOrder createSettleOrder(String customer,String orderBindId,JhfAliveContract contract) throws IdGenerateException {
@@ -297,52 +300,38 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	
 	
 	
-	public   JhfAliveOrder getOpenInstantsOrder(String customerId,String orderBindId) throws IdGenerateException{
+	public JhfAliveOrder getCommonInstantsOrder(String customerId,String orderBindId) throws IdGenerateException{
 		
-//		String orderPriceStr = "200.10";
-//		String executionPriceStr = "100.00";
 		String boardRateStr = "100.00";
-//		String tradePriceStr = executionPriceStr;
-//		String tradeTypeStr = "0";
 		String orderStatuStr = "7";
 		String orderTypeStr = "0";
 
 		
 		JhfAliveOrder order  = new JhfAliveOrder();
 		
-		//  ===========> 
+		//  ==== PK setup =======> 
 		JhfAliveOrderId id = new JhfAliveOrderId();
-		
-//		id.setOrderId(IdGenerateFacade.getOrderId());
 		id.setOrderId(createOrderId(customerId));
 		id.setTradeId(IdGenerateFacade.getTradeId());
+		// < =====================
+		
 		
 		order.setId(id);
-		
 		order.setOrderAmount(orderMessageVender.getAmount());
-		
 		order.setCustomerId(customerId);
-		
 		order.setCurrencyPair(orderMessageVender.getCurrencyPair());
-//		order.setExecutionPrice(new BigDecimal(executionPriceStr));
 		order.setExecutionType(new BigDecimal(String.valueOf(orderMessageVender.getExecutionType())));
-		order.setActiveFlag(BigDecimal.ONE);
 		order.setOrderPrice(orderMessageVender.getOrderPrice());
+		order.setTradeType(BigDecimal.valueOf(orderMessageVender.getTradeType()));
+		order.setActiveFlag(BigDecimal.ONE);
+		
 		order.setRevisionNumber(1);
 		order.setOrderStatus(new BigDecimal(orderStatuStr));
 		order.setSlippage(orderMessageVender.getSlippage());
 		order.setOrderType(new BigDecimal(orderTypeStr));
 		order.setSide(new BigDecimal(String.valueOf( orderMessageVender.getSide() )));
 		order.setCustomerOrderNo(IdGenerateFacade.obtainCustomerOrderNo(orderMessageVender.getCustomerId()));
-		order.setTradeType(BigDecimal.valueOf(orderMessageVender.getTradeType()));
-		
 
-//		if(orderMessageVender.getTradeType() == 1){
-//			order.setTopOrderId(topOrderId);
-//			order.setSettleContractId(settleContractId);
-//		}
-		
-		// < ===========
 		
 		
 		order.setActivationType(BigDecimal.ZERO);
@@ -388,14 +377,13 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		
 		orderMessageVender.setDoBatch(true);
 		
-		JhfAliveOrder order = getOpenInstantsOrder(customerId,orderBindId);
+		JhfAliveOrder order = getCommonInstantsOrder(customerId,orderBindId);
 		
-		
+		order.setTradeType(BigDecimal.valueOf( TradeTypeEnum.TRADE_SETTLE_ENUM.getValue()) );
 		order.setTopOrderId(contract.getOrderId());
 		order.setSettleContractId(contract.getContractId());
 //		order.setOrderAmount(contract.getAmountNoSettled());
 //		order.setSide(contract.getSide().negate());
-		
 		
 		System.out.println("orderId:"+order.getId().getOrderId()+",orderSide:"+order.getSide()
 				+",contractId:"+contract.getContractId() + ",contractSide:"+contract.getSide());

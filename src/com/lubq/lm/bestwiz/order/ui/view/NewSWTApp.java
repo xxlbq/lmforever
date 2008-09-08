@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import cn.bestwiz.jhf.core.bo.enums.TradeTypeEnum;
 import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
@@ -118,9 +119,6 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	//
 	public static int scaling = 1;
 	public static int bindCustomerSize = 1;
-	
-	//open or settle  ( 0  or  1)
-	private int orderTradeType = 0;
 	//=================
 	
 	
@@ -481,7 +479,6 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						doOrderAndSettle_button = new Button(settle_order_group,SWT.PUSH | SWT.CENTER);
 						doOrderAndSettle_button.setText("\u51b3\u8ba1\u6ce8\u6587");
 						doOrderAndSettle_button.setBounds(539, 17, 98, 21);
-//						doOrderAndSettle_button.setData("ACTION_SOURCE", "SETTLE");
 						doOrderAndSettle_button.addMouseListener(new SettleOrderMouseAdapter());
 					}
 					{
@@ -581,29 +578,22 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		
 //		System.out.println("========:"+this.getCustomerIdlist_list().getText());
 		
-		String 	cId 	= this.getCustomerId_text().getText();
-		java.util.List<String> cIdList = StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
-		String 	currencyPair = this.getCurrencyPair_combo().getText();
-		int 	sideIndex 	= this.getSide_combo().getSelectionIndex();
-		int     orderBatchSize = Integer.parseInt( this.getOrderBatchSize_combo().getText() );
-		int     orderBindBatchSize = Integer.parseInt( this.getBindBatchSize_combo().getText() );
-		boolean isBatch = Boolean.valueOf( this.getIsBatch_combo().getText() );
-		int  	mode = this.getMode_combo().getSelectionIndex();
-		BigDecimal orderPrice = new BigDecimal( this.getOrderPrice_text().getText() );
-		BigDecimal orderAmount = new BigDecimal(this.getOrderAmount_combo().getText());
+		String 	cId 					= this.getCustomerId_text().getText();
+		java.util.List<String> cIdList 	= StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
+		String 	currencyPair 			= this.getCurrencyPair_combo().getText();
+		int 	sideIndex 				= this.getSide_combo().getSelectionIndex();
+		int     orderBatchSize 			= Integer.parseInt( this.getOrderBatchSize_combo().getText() );
+		int     orderBindBatchSize 		= Integer.parseInt( this.getBindBatchSize_combo().getText() );
+		boolean isBatch 				= Boolean.valueOf( this.getIsBatch_combo().getText() );
+		int  	mode 					= this.getMode_combo().getSelectionIndex();
+		BigDecimal orderPrice 			= new BigDecimal( this.getOrderPrice_text().getText() );
+		BigDecimal orderAmount 			= new BigDecimal(this.getOrderAmount_combo().getText());
 		
-		BigDecimal slippage = new BigDecimal(this.getSlippage_combo().getText());
-		int executionTypeIndex = this.getExecutionType_combo().getSelectionIndex();
+		BigDecimal slippage 			= new BigDecimal(this.getSlippage_combo().getText());
+		int executionTypeIndex 			= this.getExecutionType_combo().getSelectionIndex();
 		
-		int tradeType = this.orderTradeType;
-		
-//		for (String string : cIdList) {
-//			
-//			System.out.println("FOR  cid:"+string);
-//		}
-		
-		
-		
+		int tradeType 					= TradeTypeEnum.TRADE_OPEN_ENUM.getValue();
+	
 		
 		of.setCustomerId(cId);
 		of.setCustomerIdList(cIdList);
@@ -667,7 +657,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		of.setSettleExecutionType(executionTypeIndex);		
 		of.setExecutionType(executionTypeIndex);		
 //
-		of.setTradeType( 1 );
+		of.setTradeType(TradeTypeEnum.TRADE_SETTLE_ENUM.getValue());
 		
 	}
 	
