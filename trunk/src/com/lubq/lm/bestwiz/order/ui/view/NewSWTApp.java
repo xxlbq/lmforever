@@ -120,7 +120,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 	public static int scaling = 1;
 	public static int bindCustomerSize = 1;
 	//=================
-	
+	public static boolean alreadyInit = false;
 	
 	{
 		//Register as a resource user - SWTResourceManager will
@@ -608,6 +608,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		of.setSlippage(slippage);
 		of.setExecutionType(executionTypeIndex);		
 
+		of.setOrderBindType(executionTypeIndex);
 		of.setTradeType(tradeType);
 		
 	}
@@ -654,8 +655,10 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 //		of.setOrderPrice(orderPrice);
 //		of.setOrderAmount(orderAmount);
 //		of.setSlippage(slippage);
-		of.setSettleExecutionType(executionTypeIndex);		
-		of.setExecutionType(executionTypeIndex);		
+		
+		of.setOrderBindType(executionTypeIndex);
+		//it is    index
+		of.setExecutionType( 0 );		
 //
 		of.setTradeType(TradeTypeEnum.TRADE_SETTLE_ENUM.getValue());
 		

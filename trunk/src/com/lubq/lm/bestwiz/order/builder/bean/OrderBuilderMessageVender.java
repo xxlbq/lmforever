@@ -28,7 +28,8 @@ public class OrderBuilderMessageVender {
 	private BigDecimal slippage;
 
 	private int executionType ;
-
+	private int orderBindType;
+	
 	private int tradeType;
 	
 	
@@ -43,12 +44,34 @@ public class OrderBuilderMessageVender {
 	}
 	
 	
-	
-	
-	
+
+
+
+
+
 	public List<JhfAliveOrder> getSettleOrderList() {
 		return settleOrderList;
 	}
+
+
+
+
+
+	public int getOrderBindType() {
+		return orderBindType;
+	}
+
+
+
+
+
+
+
+	public void setOrderBindType(int orderBindType) {
+		this.orderBindType = orderBindType;
+	}
+
+
 
 
 

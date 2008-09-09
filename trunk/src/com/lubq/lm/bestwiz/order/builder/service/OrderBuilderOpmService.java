@@ -127,6 +127,11 @@ public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 
 	
 	public void initOrder() {
+		
+		if(NewSWTApp.alreadyInit == true){
+			return;
+		}
+		
 		System.out.println( " Instant order do init() ..." );
 		super.initOrder();
 		NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
@@ -138,6 +143,8 @@ public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 		System.out.println("Opm Order finishing   ...");
 		NewSWTApp.increaseOrderProcess(2 * NewSWTApp.scaling); 
 		System.out.println("Opm Order finish   over .");
+		
+		NewSWTApp.alreadyInit = true;
 	}
 
 

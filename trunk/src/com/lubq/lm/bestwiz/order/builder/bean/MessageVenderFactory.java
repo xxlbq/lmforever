@@ -2,7 +2,12 @@ package com.lubq.lm.bestwiz.order.builder.bean;
 
 import java.math.BigDecimal;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import cn.bestwiz.jhf.core.util.CollectionsUtil;
+
 import com.lm.common.util.prop.PropertiesUtil;
+import com.lubq.lm.util.CollectionUtil;
 import com.lubq.lm.util.StringUtil;
 
 public class MessageVenderFactory {
@@ -45,6 +50,11 @@ public class MessageVenderFactory {
 		orderVender.setCustomerIdList(
 				StringUtil.customerStringListCheck( of.getCustomerIdList()       ));
 		
+		if(CollectionUtil.isEmpty(orderVender.getCustomerIdList())){
+			//TODO
+		}
+		
+		
 		orderVender.setCurrencyPair(of.getCurrencyPair());
 		orderVender.setSide(of.getSide());
 		orderVender.setOrderBatchSize(of.getOrderBatchSize());
@@ -57,6 +67,11 @@ public class MessageVenderFactory {
 		orderVender.setExecutionType(of.getExecutionType());
 		
 		orderVender.setTradeType(of.getTradeType());
+		
+		if(orderVender.getTradeType() == 1){
+			orderVender.setOrderBindType(of.getOrderBindType());
+		}
+
 		
 		return orderVender;
 	}
