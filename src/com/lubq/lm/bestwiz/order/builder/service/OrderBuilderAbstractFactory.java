@@ -120,7 +120,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 
 	
 
-	protected OrderBindInfo buildSingleOrderBindInfo(String orderBindId,JhfAliveOrder order){
+	protected OrderBindInfo buildSingleOrderBindInfo(String orderBindId,int orderBindType,JhfAliveOrder order){
 		
 		OrderBindInfo bindInfo = new OrderBindInfo();
 		
@@ -141,7 +141,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 			bindInfo.setTradeBidPrice(order.getOrderPrice());
 		}
 		
-		bindInfo.setType(order.getExecutionType().intValue());
+		bindInfo.setType(orderBindType);
 		bindInfo.setSlippage(order.getSlippage());
 		bindInfo.setPriceId(order.getPriceId());
 		
@@ -150,7 +150,7 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	}
 	
 
-	protected OrderBindInfo setupMuliOrdersOrderBindInfo(String id,List<JhfAliveOrder> orderList ){
+	protected OrderBindInfo setupMuliOrdersOrderBindInfo(String id,int type,List<JhfAliveOrder> orderList ){
 		
 		OrderBindInfo bindInfo = new OrderBindInfo();
 		
@@ -176,9 +176,12 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		}else{
 			bindInfo.setTradeBidPrice(order.getOrderPrice());
 		}
-			
-		bindInfo.setType(order.getExecutionType().intValue());
-		bindInfo.setSlippage(null);
+		
+	
+		bindInfo.setType(type);
+	
+		
+		bindInfo.setSlippage(order.getSlippage());
 		bindInfo.setPriceId(null);
 		bindInfo.setMobileFlag(false);
 		// ===============
