@@ -118,6 +118,10 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	public void finishOrder() throws JMSException {
 		
 		if(getOrderBuilderMessageVender().isDoBatch()){
+			if(getOrderBuilderMessageVender().getTradeType() == 1){
+				System.out.println(" ==============  settle order   .  not send msg  ");
+				return;
+			}
 			System.out.println("Multi bind info sending ...");
 			afterMultiInstantsOrder(muliBindInfoList);
 			
@@ -251,6 +255,8 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 
 //				for (int bindi = 0; bindi < orderMessageVender.getOrderBindBatchSize(); bindi++) {
 
+				
+				
 					DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
 
 					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
@@ -264,6 +270,7 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 					for (int i = 0; i < contractSize; i++) {
 						// 创建order对象，并添加到orderList中
 						JhfAliveOrder order = createSettleOrder(cstId,orderbindId,contractList.get(i));
+						System.out.println("settle order :"+order);
 						orderList.add(order);
 						NewSWTApp.increaseOrderProcess(4); 
 
@@ -273,6 +280,11 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 //								.getTradeId());
 //						orderBindList.add(bind);
 
+						
+						
+						//更新 amountSetting
+						System.out.println("order amount :"+order.getOrderAmount());
+						DAOFactory.getContractDao().changeSettleOrderToContract(order);
 					}
 					
 					System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +NewSWTApp.orderPrcoessing);
@@ -380,7 +392,12 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		
 		orderMessageVender.setAmount(contract.getAmountNoSettled());
 		orderMessageVender.setSide(contract.getSide().negate().intValue());
-		orderMessageVender.setOrderPrice(contract.getOrderPrice());
+		if(orderMessageVender.getSide() == 1){
+			orderMessageVender.setOrderPrice(new BigDecimal("200"));
+		}else{
+			orderMessageVender.setOrderPrice(new BigDecimal("1"));
+		}
+		
 		orderMessageVender.setSlippage(new BigDecimal("0.99"));
 		
 		orderMessageVender.setDoBatch(true);
