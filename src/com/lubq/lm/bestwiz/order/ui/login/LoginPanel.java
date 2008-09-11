@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Text;
 import com.lubq.lm.bestwiz.order.ui.cons.GlobalConstants;
 import com.lubq.lm.bestwiz.order.ui.cons.GlobalResources;
 import com.lubq.lm.bestwiz.order.ui.cons.LoginResourceName;
-import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
+import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView;
 import com.lubq.lm.util.ResourceUtil;
 import com.lubq.lm.util.SWTResourceManager;
 import com.lubq.lm.util.WidgetUtil;
@@ -361,7 +361,7 @@ public class LoginPanel extends Composite {
                             Shell mainShell = new Shell(Display.getDefault() ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
 //                        	Shell shell = new Shell(display ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
                     		
-                    		NewSWTApp inst = new NewSWTApp(mainShell, SWT.SYSTEM_MODAL);
+                    		OrderBuilderView inst = new OrderBuilderView(mainShell, SWT.SYSTEM_MODAL);
                     		Point size = inst.getSize();
                     		mainShell.setLayout(new FillLayout());
                     		mainShell.layout();
