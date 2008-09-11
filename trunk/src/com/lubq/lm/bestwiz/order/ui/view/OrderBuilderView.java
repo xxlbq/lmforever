@@ -53,7 +53,7 @@ import com.lubq.lm.util.StringUtil;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
-public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
+public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
@@ -128,7 +128,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		SWTResourceManager.registerResourceUser(this);
 	}
 
-	public NewSWTApp(Composite parent, int style) {
+	public OrderBuilderView(Composite parent, int style) {
 		super(parent, style);
 		initGUI();
 		
@@ -418,6 +418,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 						bindBatchSize_combo.add("8",7);
 						bindBatchSize_combo.add("9",8);
 						bindBatchSize_combo.add("10",9);
+						bindBatchSize_combo.add("50",10);
 						bindBatchSize_combo.select(0);
 					}
 					{
@@ -680,7 +681,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 		Display display = Display.getDefault();
 		Shell shell = new Shell(display ,SWT.CLOSE |SWT.MIN |SWT.MAX |SWT.TITLE);
 
-		NewSWTApp inst = new NewSWTApp(shell, SWT.SYSTEM_MODAL);
+		OrderBuilderView inst = new OrderBuilderView(shell, SWT.SYSTEM_MODAL);
 		Point size = inst.getSize();
 		shell.setLayout(new FillLayout());
 		shell.layout();
@@ -1024,7 +1025,7 @@ public class NewSWTApp extends org.eclipse.swt.widgets.Composite {
 
 	public static void increaseOrderProcess(int increase) {
 		synchronized (lock) {
-			NewSWTApp.orderPrcoessing = NewSWTApp.orderPrcoessing + increase;
+			OrderBuilderView.orderPrcoessing = OrderBuilderView.orderPrcoessing + increase;
 			System.out.println("orderPrcoessing   ==== :"+orderPrcoessing);
 		}
 

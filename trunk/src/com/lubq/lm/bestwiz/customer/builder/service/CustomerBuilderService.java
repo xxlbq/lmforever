@@ -4,6 +4,7 @@ import java.util.List;
 
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
+import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
@@ -17,7 +18,9 @@ public class CustomerBuilderService implements CustomerBuilder{
 	
 	public JhfAliveOrder createCustomer(String customer, String orderBindId)
 			throws IdGenerateException {
-		// TODO Auto-generated method stub
+		String customerId = IdGenerateFacade.getCustomerId();
+		
+		System.out.println(customerId);
 		return null;
 	}
 
@@ -50,6 +53,12 @@ public class CustomerBuilderService implements CustomerBuilder{
 	public void writeCustomer(JhfAliveOrder order) throws DaoException {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	
+	public static void main(String[] args) throws IdGenerateException {
+		CustomerBuilderService s = new CustomerBuilderService();
+		s.createCustomer("", "");
 	}
 	
 }

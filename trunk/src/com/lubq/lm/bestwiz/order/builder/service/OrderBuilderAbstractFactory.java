@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import com.lubq.lm.bestwiz.order.builder.dao.OrderBuilderDao;
-import com.lubq.lm.bestwiz.order.ui.view.NewSWTApp;
+import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView;
 
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.BaseMainDao;
