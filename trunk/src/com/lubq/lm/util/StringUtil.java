@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 
 import com.lm.common.util.str.StringCommonUtil;
 
@@ -49,6 +52,14 @@ public class StringUtil {
 		}
 		return cusList ;
 	}
+	
+
+	
+	
+	
+	
+	
+	
 	
 	public static void main(String[] args) {
 //		List< String> list = StringUtil.splitString("i am a man.\n you are a not man \n,pig .", "\n");

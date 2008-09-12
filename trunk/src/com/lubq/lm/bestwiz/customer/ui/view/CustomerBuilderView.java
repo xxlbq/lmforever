@@ -1,4 +1,4 @@
-package com.lubq.lm.bestwiz.order.ui.view;
+package com.lubq.lm.bestwiz.customer.ui.view;
 
 import java.math.BigDecimal;
 
@@ -38,9 +38,8 @@ import com.lubq.lm.bestwiz.order.builder.bean.OrderForm;
 import com.lubq.lm.bestwiz.order.builder.service.OrderBuilderAbstractFactory;
 import com.lubq.lm.bestwiz.order.builder.service.OrderBuilderInstantService;
 import com.lubq.lm.bestwiz.order.builder.service.OrderBuilderOpmService;
-import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView.LongRunningOperation;
-import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView.OpenOrderMouseAdapter;
-import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView.SettleOrderMouseAdapter;
+import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView;
+
 import com.lubq.lm.util.SWTResourceManager;
 import com.lubq.lm.util.StringUtil;
 
@@ -61,12 +60,12 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
+	private Text customerLoginId_text;
 	private Combo settle_pair_combo;
 	private Label settle_curPair_label;
 	private Combo settel_type_combo;
 	private Label settle_type_label;
 	private Group settle_order_group;
-	private StyledText customerIdlist_list;
 	private Label customerIdList_label;
 	private Combo bindBatchSize_combo;
 	private Button doOrderAndSettle_button;
@@ -200,7 +199,6 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 					{
 						customerId_text = new Text(group1, SWT.NONE);
 						customerId_text.setBounds(77, 21, 56, 14);
-						customerId_text.setText("00000101");
 					}
 					{
 						customerId_label = new Label(group1, SWT.NONE);
@@ -211,11 +209,11 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 						customerIdList_label = new Label(group1, SWT.NONE);
 						customerIdList_label.setText("customer login id  :");
 						customerIdList_label.setBounds(180, 21, 84, 15);
+						customerIdList_label.setSize(88, 15);
 					}
 					{
-						customerIdlist_list = new StyledText(group1, SWT.BORDER);
-						customerIdlist_list.setBounds(273, 14, 66, 49);
-						
+						customerLoginId_text = new Text(group1, SWT.NONE);
+						customerLoginId_text.setBounds(280, 21, 56, 14);
 					}
 				}
 				{
@@ -584,7 +582,7 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 //		System.out.println("========:"+this.getCustomerIdlist_list().getText());
 		
 		String 	cId 					= this.getCustomerId_text().getText();
-		java.util.List<String> cIdList 	= StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
+//		java.util.List<String> cIdList 	= StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
 		String 	currencyPair 			= this.getCurrencyPair_combo().getText();
 		int 	sideIndex 				= this.getSide_combo().getSelectionIndex();
 		int     orderBatchSize 			= Integer.parseInt( this.getOrderBatchSize_combo().getText() );
@@ -601,7 +599,7 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 	
 		
 		of.setCustomerId(cId);
-		of.setCustomerIdList(cIdList);
+//		of.setCustomerIdList(cIdList);
 		of.setCurrencyPair(currencyPair);
 		of.setSide(sideIndex);
 		of.setOrderBatchSize(orderBatchSize);
@@ -625,7 +623,7 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 //		System.out.println("========:"+this.getCustomerIdlist_list().getText());
 		
 		String 	cId 	= this.getCustomerId_text().getText();
-		java.util.List<String> cIdList = StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
+//		java.util.List<String> cIdList = StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
 		String 	settleCurrencyPair = this.getSettle_pair_combo().getText();
 		
 //		int 	sideIndex 	= this.getSide_combo().getSelectionIndex();
@@ -650,7 +648,7 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 		
 		
 		of.setCustomerId(cId);
-		of.setCustomerIdList(cIdList);
+//		of.setCustomerIdList(cIdList);
 		of.setCurrencyPair(settleCurrencyPair);
 //		of.setSide(sideIndex);
 //		of.setOrderBatchSize(orderBatchSize);
@@ -999,13 +997,6 @@ public class CustomerBuilderView extends org.eclipse.swt.widgets.Composite {
 
 	
 
-	public StyledText getCustomerIdlist_list() {
-		return customerIdlist_list;
-	}
-
-	public void setCustomerIdlist_list(StyledText customerIdlist_list) {
-		this.customerIdlist_list = customerIdlist_list;
-	}
 
 	public ProgressBar getOrder_progressBar() {
 		return order_progressBar;
