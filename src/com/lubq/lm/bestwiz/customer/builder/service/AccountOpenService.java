@@ -12,10 +12,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.validator.GenericValidator;
+import org.hibernate.LockMode;
 //import org.apache.commons.validator.GenericValidator;
 
 import cn.bestwiz.jhf.core.bo.bean.CustomerInfo;
+import cn.bestwiz.jhf.core.bo.enums.AccountActiveStatusEnum;
 import cn.bestwiz.jhf.core.bo.enums.AccountOpenStatusEnum;
+import cn.bestwiz.jhf.core.bo.enums.AccountStatusEnum;
 import cn.bestwiz.jhf.core.bo.enums.AppPropertyKey;
 import cn.bestwiz.jhf.core.bo.enums.AppPropertyType;
 import cn.bestwiz.jhf.core.bo.enums.BoolEnum;
@@ -25,22 +28,32 @@ import cn.bestwiz.jhf.core.bo.enums.MailActionIdEnum;
 import cn.bestwiz.jhf.core.bo.enums.MailAddressTypeEnum;
 import cn.bestwiz.jhf.core.bo.enums.MailPriorityEnum;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
+import cn.bestwiz.jhf.core.bo.exceptions.ServiceException;
 import cn.bestwiz.jhf.core.control.AdminControl;
 import cn.bestwiz.jhf.core.dao.BaseMainDao;
+import cn.bestwiz.jhf.core.dao.CashflowDao;
 import cn.bestwiz.jhf.core.dao.ConfigDao;
 import cn.bestwiz.jhf.core.dao.CustomerDao;
 import cn.bestwiz.jhf.core.dao.DAOFactory;
 import cn.bestwiz.jhf.core.dao.LockHelper;
 import cn.bestwiz.jhf.core.dao.MailDao;
+import cn.bestwiz.jhf.core.dao.ProductDao;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfArtificial;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfBankBranch;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfBankBranchId;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfCashBalance;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfCashBalanceId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfCustBankAccount;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfCustBankAccountId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfCustomer;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfCustomerInfoChangeLog;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfCustomerStatus;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfGroupProductBand;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfLeverageGroup;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfLeverageGroupId;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAction;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfMailActionMap;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfMailActionMapId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAddress;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAddressId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfPersonal;
@@ -53,6 +66,7 @@ import cn.bestwiz.jhf.core.service.CoreService;
 import cn.bestwiz.jhf.core.service.CtiService;
 import cn.bestwiz.jhf.core.service.ServiceFactory;
 import cn.bestwiz.jhf.core.service.exception.AccountException;
+import cn.bestwiz.jhf.core.service.exception.TreasureException;
 import cn.bestwiz.jhf.core.util.BeanUtils;
 import cn.bestwiz.jhf.core.util.DateHelper;
 import cn.bestwiz.jhf.core.util.LogUtil;
@@ -80,10 +94,10 @@ public class AccountOpenService {
 
     private MailDao m_mailDao = DAOFactory.getMailDao();// 邮件操作dao类
 
-    // private CashflowDao m_cashflowDao = DAOFactory.getCashflowDao();//
+    private CashflowDao m_cashflowDao = DAOFactory.getCashflowDao();//
     // 用户金额操作dao类
     //
-    // private ProductDao m_productDao = DAOFactory.getProductDao();//
+    private ProductDao m_productDao = DAOFactory.getProductDao();//
     // 产品信息操作dao类
 
     private ConfigDao m_configDao = DAOFactory.getConfigDao();// 配置信息操作dao类
@@ -91,7 +105,7 @@ public class AccountOpenService {
     private static final String CURRENCYCODE_CONSTANT = "JPY";
 
     private static final BaseMainDao baseMainDao = new BaseMainDao();
-    // private static final int ZERO = 0;
+    private static final int ZERO = 0;
 
     /**
      * 口座开设
@@ -165,15 +179,15 @@ public class AccountOpenService {
             
              /** 4.保存用户详细信息到JHF_CUSTOMER_STATUS表，其中group注意是defaultGroup。 */
              storeCustomerStatus(customer, groupId);
-            //            
-            // /** 5.保存邮件模板绑定信息 */
-            // storeMailActionMap(customer);
-            //
-            // /** 6.保存levagegroup信息 */
-            // storeLeverageGroup(customer, groupId);
-            //
-            // /** 7.保存cash_balance信息 */
-            // storeCashBalance(customer);
+
+             /** 5.保存邮件模板绑定信息 */
+             storeMailActionMap(customer);
+            
+             /** 6.保存levagegroup信息 */
+             storeLeverageGroup(customer, groupId);
+            
+             /** 7.保存cash_balance信息 */
+             storeCashBalance(customer);
 
             // 事务完成后进行提交操作，如果有错误，所有操作回滚。
             DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
@@ -447,6 +461,8 @@ public class AccountOpenService {
 			throws IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException, DaoException {
 
+		System.out.println("=== storeCustomerStatus  begin ... ");
+		
 		JhfCustomerStatus status = new JhfCustomerStatus();// 数据库操作bean
 		BeanUtils.copyProperties(status, customer);
 
@@ -454,24 +470,24 @@ public class AccountOpenService {
 
 		status.setGroupId(groupId);// groupId默认是defaultGroup
 
-		BigDecimal disableAll = new BigDecimal(
-				ConstraintTypeEnum.TYPE_DISABLE_ALL_ENUM.getValue());
 
-		status.setLoginConstraint(new BigDecimal(
-				LoginConstraintEnum.BOOL_NO_ENUM.getValue()));// 登陆限制
-		status.setOpenBuyConstraint(disableAll);// 新规买限制
-		status.setOpenSellConstraint(disableAll);// 新规卖限制
-		status.setCloseBuyConstraint(disableAll);// 决计买限制
-		status.setCloseSellConstraint(disableAll);// 决计卖限制
-		status.setStraddleOptionFlag(new BigDecimal(
-				StraddleOptionEnum.BOOL_NO_ENUM.getValue()));// 两建
-		status.setWithdrawalConstraint(new BigDecimal(
-				LoginConstraintEnum.BOOL_NO_ENUM.getValue()));// 出金限制
 
-		status.setAccountStatus(null);
+		
+		
+        BigDecimal enable = new BigDecimal(
+        		ConstraintTypeEnum.TYPE_ENABLE_ALL_ENUM.getValue());
 
-		status.setAccountActiveStatus(new BigDecimal(
-				AccountActiveStatusEnum.INEFFICACY_ENUM.getValue()));
+
+//		status.setLoginConstraint(new BigDecimal("0"));// 登陆限制
+//		status.setOpenBuyConstraint(ableAll);// 新规买限制
+//		status.setOpenSellConstraint(ableAll);// 新规卖限制
+//		status.setCloseBuyConstraint(ableAll);// 决计买限制
+//		status.setCloseSellConstraint(ableAll);// 决计卖限制
+//		status.setStraddleOptionFlag(new BigDecimal("0"));// 两建
+//		status.setWithdrawalConstraint(new BigDecimal("0"));// 出金限制
+
+		status.setAccountStatus(new BigDecimal("0"));
+		status.setAccountActiveStatus(new BigDecimal("0"));
 
 		String frontDate = customer.getApplicationDate();
 
@@ -480,9 +496,23 @@ public class AccountOpenService {
 
 		status.setOldLoginPassword(null);// 旧密码
 		status.setUpperAmount(null);
+		
+        status.setWithdrawalConstraint(enable); // 出金限制
+        status.setLoginConstraint(enable); // 登陆限制
+        status.setOpenBuyConstraint(enable); // 新规买限制
+        status.setOpenSellConstraint(enable); // 新规卖限制
+        status.setCloseBuyConstraint(enable); // 决计买限制
+        status.setCloseSellConstraint(enable); // 决计卖限制
+        status.setStraddleOptionFlag(enable); // 两建
+        status.setLosscutConstrant(enable); // Losscut
 
+        status.setAccountActiveStatusDate(frontDate);
+		
 		// 保存用户状态信息到JHF_CUSTOMER_STATUS表
 		m_customerDao.storeCustomerStatus(status);
+		
+		System.out.println("=== storeCustomerStatus  begin ... ");
+		
 	}
 
 	
@@ -490,45 +520,102 @@ public class AccountOpenService {
 	
 	
 	
-	
-	
-	
-//	
-//	/**
-//	 * 保存用户邮件模板对应信息到JHF_MAIL_ACCTION_MAP
-//	 * 对每一个JHF_MAIL_ADDRESS和JHF_MAIL_ACTION建立一条关联数据。也就是说默认上客户可以收到所有的 对顾客的MAIL.
-//	 * 
-//	 * @param customer
-//	 * @throws AdminServiceException
-//	 * 
-//	 * @author mengfj <mengfj@bestwiz.cn>
-//	 * @author yaolin <yaolin@bestwiz.cn>
-//	 * @throws DaoException
-//	 */
-//	private void storeMailActionMap(CustomerInfo customer) throws DaoException {
-//		List<JhfMailAction> list = null;
+
+//    /**
+//     * 将账户状态改为开设完了
+//     * 
+//     * @param jhfCustomer
+//     * @return boolean 是否执行了入金完了
+//     * @throws DaoException
+//     * @throws ServiceException
+//     * 
+//     * @author yaolin <yaolin@bestwiz.cn>
+//     */
+//    private boolean accountOpenComplete(JhfCustomer jhfCustomer) throws DaoException, ServiceException {
 //
-//		// 获取所有的mailActionId进行mail的映射操作
-//		list = m_mailDao.getAllMailAction();
-//		for (JhfMailAction mailAction : list) {
-//			// PC邮件信息绑定
-//			m_mailDao
-//					.buildMailActionMap(createMailActionMap(customer,
-//							MailPriorityEnum.PRIMARY.getValue(),
-//							MailAddressTypeEnum.ADDR_PC_MAIL_ENUM, customer
-//									.getEmailPc(), mailAction.getId()
-//									.getMailActionId()));
+//        if (!isDepositWait(jhfCustomer)) {
+//            return false;
+//        }
 //
-//			// Mobile邮件信息绑定
-//			m_mailDao.buildMailActionMap(createMailActionMap(customer,
-//					MailPriorityEnum.PRIMARY.getValue(),
-//					MailAddressTypeEnum.ADDR_MOBILE_MAIL_ENUM, customer
-//							.getEmailMobile(), mailAction.getId()
-//							.getMailActionId()));
-//		}
-//	}
-//	
-//	
+//        String customerId = jhfCustomer.getCustomerId();
+//
+//        JhfCustomerStatus status = (JhfCustomerStatus) customerDao.get(JhfCustomerStatus.class, customerId,
+//                LockMode.UPGRADE);
+//
+//        if (status == null) {
+//            throw new TreasureException(TreasureException.CUSTOMER_LOCK_ERROR, "CUSTOMER_LOCK_ERROR! customerId = "
+//                    + customerId);
+//        }
+//
+//        jhfCustomer.setAccountOpenStatus(new BigDecimal(AccountOpenStatusEnum.ACCOUNT_OPEN_ENUM.getValue()));
+//
+//        status.setAccountStatus(new BigDecimal(AccountStatusEnum.ACCOUNT_NORMAL.getValue()));
+//
+//        status.setAccountActiveStatus(new BigDecimal(AccountActiveStatusEnum.NORMAL_ENUM.getValue()));
+//
+//
+//
+//        jhfCustomer.setAccountOpenFinishDate(frontDate);
+//
+//        jhfCustomer.setAccountStatusChangeDate(frontDate);
+//
+//        jhfCustomer.setAccountStatusChangeDatetime(DateHelper.getSystemTimestamp());
+//
+//        customerDao.update(jhfCustomer);
+//        customerDao.update(status);
+//
+//        return true;
+//
+//    }
+	
+	
+	
+	
+	
+	
+	/**
+	 * 保存用户邮件模板对应信息到JHF_MAIL_ACCTION_MAP
+	 * 对每一个JHF_MAIL_ADDRESS和JHF_MAIL_ACTION建立一条关联数据。也就是说默认上客户可以收到所有的 对顾客的MAIL.
+	 * 
+	 * @param customer
+	 * @throws AdminServiceException
+	 * 
+	 * @author mengfj <mengfj@bestwiz.cn>
+	 * @author yaolin <yaolin@bestwiz.cn>
+	 * @throws DaoException
+	 */
+	private void storeMailActionMap(CustomerInfo customer) throws DaoException {
+		
+		System.out.println("=== storeMailActionMap  begin ... customerId:" +customer.getCustomerId() );
+		
+		List<cn.bestwiz.jhf.core.dao.bean.main.JhfMailAction> list = null;
+
+		// 获取所有的mailActionId进行mail的映射操作
+		list = m_mailDao.getAllMailAction();
+		for (JhfMailAction mailAction : list) {
+			// PC邮件信息绑定
+			
+			System.out.println("customerId:"+customer.getCustomerId()
+					+",mailactionMap id:"+mailAction.getId()
+					.getMailActionId());
+			
+			m_mailDao
+					.buildMailActionMap(createMailActionMap(customer,
+							MailPriorityEnum.PRIMARY.getValue(),
+							MailAddressTypeEnum.ADDR_PC_MAIL_ENUM, customer
+									.getEmailPc(), mailAction.getId()
+									.getMailActionId()));
+
+			// Mobile邮件信息绑定
+			m_mailDao.buildMailActionMap(createMailActionMap(customer,
+					MailPriorityEnum.PRIMARY.getValue(),
+					MailAddressTypeEnum.ADDR_MOBILE_MAIL_ENUM, customer
+							.getEmailMobile(), mailAction.getId()
+							.getMailActionId()));
+		}
+		
+		System.out.println("=== storeMailActionMap  begin ... ");
+	}
 	
 	
 	
@@ -539,116 +626,131 @@ public class AccountOpenService {
 	
 	
 	
-    //
-    // /**
-    // * 根据邮件主次和类型不同,生成对应的数据库操作需要的mailActionMap bean
-    // *
-    // * @param customer
-    // * @param priority
-    // * @param mailAddressType
-    // * @param mail
-    // * @param mailActionId
-    // * @return JhfMailActionMap
-    // *
-    // * @author mengfj <mengfj@bestwiz.cn>
-    // * @author yaolin <yaolin@bestwiz.cn>
-    // */
-    // private JhfMailActionMap createMailActionMap(CustomerInfo customer,
-    // int priority, MailAddressTypeEnum mailAddressType, String mail,
-    // String mailActionId) {
-    // JhfMailActionMap mailActionMap = new JhfMailActionMap();// 数据库操作bean
-    //
-    // JhfMailActionMapId mapId = new JhfMailActionMapId();
-    // mapId.setCustomerId(customer.getCustomerId());// 待开户用户id
-    // mapId.setMailAddressType(new BigDecimal(mailAddressType.getValue()));//
-    // 邮件类型
-    // mapId.setMailActionId(mailActionId);// 对应的mailActionId
-    // mapId.setMailAddressPriority(new BigDecimal(priority));// 邮件优先级
-    // mailActionMap.setId(mapId);
-    //
-    // mailActionMap.setInputStaffId(customer.getUpdateStaffId());// 操作人员
-    // mailActionMap.setUpdateStaffId(customer.getUpdateStaffId());// 操作人员
-    //
-    // return mailActionMap;
-    // }
-    //
-    // /**
-    // * 保存用户与所对应的product信息到JHF_LEVERAGE_GROUP
-    // *
-    // * @param customer
-    // * @param groupId
-    // * @throws DaoException
-    // *
-    // * @author mengfj <mengfj@bestwiz.cn>
-    // * @author yaolin <yaolin@bestwiz.cn>
-    // */
-    // private void storeLeverageGroup(CustomerInfo customer, String groupId)
-    // throws DaoException {
-    //
-    // List<JhfGroupProductBand> list = null;// 用户对应组别的所有product信息
-    //
-    // // 检索用户所在组的所有product信息
-    // list = m_productDao.getProductByGroup(groupId);
-    //
-    // for (JhfGroupProductBand groupProductBand : list) {
-    // JhfLeverageGroup group = new JhfLeverageGroup();
-    //
-    // JhfLeverageGroupId leverageGroupId = new JhfLeverageGroupId();
-    // leverageGroupId.setCustomerId(customer.getCustomerId());
-    // leverageGroupId.setProductId(groupProductBand.getId()
-    // .getProductId());
-    // group.setId(leverageGroupId);
-    //
-    // group.setCurrencyPair(groupProductBand.getCurrencyPair());
-    //
-    // group.setInputStaffId(customer.getUpdateStaffId());
-    // group.setUpdateStaffId(customer.getUpdateStaffId());
-    //
-    // m_customerDao.storeLeverageGroup(group);
-    // }
-    // }
-    //
-    // /**
-    // * 生成用户的帐户余额信息.新开户默认都是0
-    // *
-    // * @param customer
-    // * @throws DaoException
-    // *
-    // * @author mengfj <mengfj@bestwiz.cn>
-    // * @author yaolin <yaolin@bestwiz.cn>
-    // */
-    // private void storeCashBalance(CustomerInfo customer) throws DaoException
-    // {
-    //
-    // JhfCashBalance balance = new JhfCashBalance();// 数据库操作的balance bean
-    //
-    // JhfCashBalanceId id = new JhfCashBalanceId();// balance id
-    // id.setCustomerId(customer.getCustomerId());// 用户id
-    // id.setCurrencyCode(CURRENCYCODE_CONSTANT);//
-    // JHF_CURRENCY.ACCOUNT_STATUS为1的货币才放在JHF_CASHBALANCE中，本期只有JPY的ACCOUNT_STATUS为1。
-    // balance.setId(id);
-    //
-    // /** 新开户用户默认的金额全部为零 */
-    // balance.setPrePreBalance(new BigDecimal(ZERO));
-    // balance.setPreviousBalance(new BigDecimal(ZERO));
-    // balance.setCashBalance(new BigDecimal(ZERO));
-    //
-    // balance.setInputStaffId(customer.getUpdateStaffId());// 操作员(新增)
-    // balance.setUpdateStaffId(customer.getUpdateStaffId());// 操作员(更新)
-    //
-    // // 保存calanceBalance信息到db
-    // m_cashflowDao.createCashBalance(balance);
-    // }
+	
+	
+    
+     /**
+		 * 根据邮件主次和类型不同,生成对应的数据库操作需要的mailActionMap bean
+		 * 
+		 * @param customer
+		 * @param priority
+		 * @param mailAddressType
+		 * @param mail
+		 * @param mailActionId
+		 * @return JhfMailActionMap
+		 * 
+		 * @author mengfj <mengfj@bestwiz.cn>
+		 * @author yaolin <yaolin@bestwiz.cn>
+		 */
+	private JhfMailActionMap createMailActionMap(
+			CustomerInfo customer,int priority, MailAddressTypeEnum mailAddressType,
+			String mail,String mailActionId) {
+	     JhfMailActionMap mailActionMap = new JhfMailActionMap();// 数据库操作bean
+	    
+	     cn.bestwiz.jhf.core.dao.bean.main.JhfMailActionMapId mapId = new JhfMailActionMapId();
+	     mapId.setCustomerId(customer.getCustomerId());// 待开户用户id
+	     mapId.setMailAddressType(new BigDecimal(mailAddressType.getValue()));//
+	     //邮件类型
+	     mapId.setMailActionId(mailActionId);// 对应的mailActionId
+	     mapId.setMailAddressPriority(new BigDecimal(priority));// 邮件优先级
+	     mailActionMap.setId(mapId);
+	    
+	     mailActionMap.setInputStaffId(customer.getUpdateStaffId());// 操作人员
+	     mailActionMap.setUpdateStaffId(customer.getUpdateStaffId());// 操作人员
+    
+	     return mailActionMap;
+    }
     //
      /**
-     * 获取默认的用户分组(系统目前全部为defaultGroup
+		 * 保存用户与所对应的product信息到JHF_LEVERAGE_GROUP
+		 * 
+		 * @param customer
+		 * @param groupId
+		 * @throws DaoException
+		 * 
+		 * @author mengfj <mengfj@bestwiz.cn>
+		 * @author yaolin <yaolin@bestwiz.cn>
+		 */
+	private void storeLeverageGroup(CustomerInfo customer, String groupId)
+			throws DaoException {
+		
+		System.out.println("=== storeLeverageGroup  begin ... ");
+
+		List<JhfGroupProductBand> list = null;// 用户对应组别的所有product信息
+
+		// 检索用户所在组的所有product信息
+		list = m_productDao.getProductByGroup(groupId);
+
+		for (JhfGroupProductBand groupProductBand : list) {
+			JhfLeverageGroup group = new JhfLeverageGroup();
+
+			JhfLeverageGroupId leverageGroupId = new JhfLeverageGroupId();
+			leverageGroupId.setCustomerId(customer.getCustomerId());
+			leverageGroupId.setProductId(groupProductBand.getId()
+					.getProductId());
+			group.setId(leverageGroupId);
+
+			group.setCurrencyPair(groupProductBand.getCurrencyPair());
+
+			group.setInputStaffId(customer.getUpdateStaffId());
+			group.setUpdateStaffId(customer.getUpdateStaffId());
+
+			m_customerDao.storeLeverageGroup(group);
+		}
+		
+		
+		System.out.println("=== storeLeverageGroup  begin ... ");
+	}
+	
+	
+	
+	
+    
+     /**
+     * 生成用户的帐户余额信息.新开户默认都是0
      *
-     * @return
-     * @throws AdminServiceException
+     * @param customer
+     * @throws DaoException
      *
      * @author mengfj <mengfj@bestwiz.cn>
      * @author yaolin <yaolin@bestwiz.cn>
      */
+     private void storeCashBalance(CustomerInfo customer) throws DaoException {
+
+    	 System.out.println("=== storeCashBalance  begin ... ");
+    	 
+		JhfCashBalance balance = new JhfCashBalance();// 数据库操作的balance bean
+
+		JhfCashBalanceId id = new JhfCashBalanceId();// balance id
+		id.setCustomerId(customer.getCustomerId());// 用户id
+		id.setCurrencyCode(CURRENCYCODE_CONSTANT);//
+		// JHF_CURRENCY.ACCOUNT_STATUS为1的货币才放在JHF_CASHBALANCE中，本期只有JPY的ACCOUNT_STATUS为1。
+		balance.setId(id);
+
+		/** 新开户用户默认的金额全部为零 */
+		balance.setPrePreBalance(new BigDecimal(ZERO));
+		balance.setPreviousBalance(new BigDecimal(ZERO));
+		balance.setCashBalance(new BigDecimal("1000000000"));
+
+		balance.setInputStaffId(customer.getUpdateStaffId());// 操作员(新增)
+		balance.setUpdateStaffId(customer.getUpdateStaffId());// 操作员(更新)
+
+		// 保存calanceBalance信息到db
+		m_cashflowDao.createCashBalance(balance);
+		
+		
+		System.out.println("=== storeCashBalance  begin ... ");
+	}
+    
+     /**
+		 * 获取默认的用户分组(系统目前全部为defaultGroup
+		 * 
+		 * @return
+		 * @throws AdminServiceException
+		 * 
+		 * @author mengfj <mengfj@bestwiz.cn>
+		 * @author yaolin <yaolin@bestwiz.cn>
+		 */
      private String getDefaultGroupId() throws Exception {
 		String groupId = null;// group,默认全部是defaultGroup从appProperty中取
 
