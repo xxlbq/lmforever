@@ -1,14 +1,21 @@
 package com.lubq.lm.bestwiz.customer.builder.service;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.lm.common.util.str.StringCommonUtil;
 import com.lubq.lm.bestwiz.customer.builder.bean.CustomerDependencyBuilderMessageVender;
+import com.lubq.lm.util.PasswordCharsBean;
 import com.lubq.lm.util.StringUtil;
+import com.lubq.lm.util.ValidatorUtil;
 
 import cn.bestwiz.jhf.core.bo.bean.CustomerInfo;
 import cn.bestwiz.jhf.core.bo.enums.AccountOpenStatusEnum;
+import cn.bestwiz.jhf.core.bo.enums.CorporationTypeEnum;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
@@ -51,7 +58,10 @@ public class CustomerBuilderService implements CustomerBuilder{
 		CustomerInfo info = new CustomerInfo();
 		
 //		cInfo.setCustomerId(IdGenerateFacade.getCustomerId());
-		info.setLoginId("");
+		
+		
+//		generateLoginId(info);
+		
 		info.setUpdateStaffId("LUBQ");
 		info.setApplicationDate(frontDate);
 		//#0未送付 #1送付済み
@@ -156,6 +166,10 @@ public class CustomerBuilderService implements CustomerBuilder{
 			System.out.println("ERROR FIRE IN doCustomer() .. ");
 		}
 	}
+	
+	
+  
+	
 	
 	public static void main(String[] args) throws IdGenerateException {
 		CustomerBuilderService s = new CustomerBuilderService();

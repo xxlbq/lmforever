@@ -1,8 +1,11 @@
 package com.lubq.lm.bestwiz.customer.builder.service;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -13,6 +16,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.validator.GenericValidator;
 import org.hibernate.LockMode;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
+import com.lubq.lm.util.PasswordCharsBean;
+import com.lubq.lm.util.ValidatorUtil;
 //import org.apache.commons.validator.GenericValidator;
 
 import cn.bestwiz.jhf.core.bo.bean.CustomerInfo;
@@ -23,10 +30,12 @@ import cn.bestwiz.jhf.core.bo.enums.AppPropertyKey;
 import cn.bestwiz.jhf.core.bo.enums.AppPropertyType;
 import cn.bestwiz.jhf.core.bo.enums.BoolEnum;
 import cn.bestwiz.jhf.core.bo.enums.ConstraintTypeEnum;
+import cn.bestwiz.jhf.core.bo.enums.CorporationTypeEnum;
 import cn.bestwiz.jhf.core.bo.enums.CustBankAccountWithdrawalFlagEnum;
 import cn.bestwiz.jhf.core.bo.enums.MailActionIdEnum;
 import cn.bestwiz.jhf.core.bo.enums.MailAddressTypeEnum;
 import cn.bestwiz.jhf.core.bo.enums.MailPriorityEnum;
+import cn.bestwiz.jhf.core.bo.enums.VirtualAccountStatusEnum;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.bo.exceptions.ServiceException;
 import cn.bestwiz.jhf.core.control.AdminControl;
@@ -57,15 +66,18 @@ import cn.bestwiz.jhf.core.dao.bean.main.JhfMailActionMapId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAddress;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAddressId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfPersonal;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfVirtualAccountNo;
 import cn.bestwiz.jhf.core.dao.exception.DataBaseConnectionException;
 import cn.bestwiz.jhf.core.dao.util.DbSessionFactory;
 import cn.bestwiz.jhf.core.idgenerate.IdGenerateFacade;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
 import cn.bestwiz.jhf.core.mail.BizMailService;
+import cn.bestwiz.jhf.core.service.AccountService;
 import cn.bestwiz.jhf.core.service.CoreService;
 import cn.bestwiz.jhf.core.service.CtiService;
 import cn.bestwiz.jhf.core.service.ServiceFactory;
 import cn.bestwiz.jhf.core.service.exception.AccountException;
+import cn.bestwiz.jhf.core.service.exception.CoreException;
 import cn.bestwiz.jhf.core.service.exception.TreasureException;
 import cn.bestwiz.jhf.core.util.BeanUtils;
 import cn.bestwiz.jhf.core.util.DateHelper;
@@ -135,7 +147,7 @@ public class AccountOpenService {
 //            }
 
             // // 获取系统的默认group为后续操作准备数据
-             String groupId = getDefaultGroupId();
+            String groupId = getDefaultGroupId();
 
             // customer,customer_status用到的staffId(社员Id)
             String updateStaffId = customer.getUpdateStaffId();
@@ -181,8 +193,11 @@ public class AccountOpenService {
              storeCustomerStatus(customer, groupId);
 
              /** 5.保存邮件模板绑定信息 */
-             storeMailActionMap(customer);
-            
+//             storeMailActionMap(customer);
+             DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
+             
+             
+             DbSessionFactory.beginTransaction(DbSessionFactory.MAIN);
              /** 6.保存levagegroup信息 */
              storeLeverageGroup(customer, groupId);
             
@@ -463,33 +478,28 @@ public class AccountOpenService {
 
 		System.out.println("=== storeCustomerStatus  begin ... ");
 		
+		BigDecimal enable = new BigDecimal(
+				ConstraintTypeEnum.TYPE_ENABLE_ALL_ENUM.getValue());
+
 		JhfCustomerStatus status = new JhfCustomerStatus();// 数据库操作bean
+		String frontDate = customer.getApplicationDate();
+	    String password = "111111111111";
 		BeanUtils.copyProperties(status, customer);
 
-		status.setInputStaffId(customer.getUpdateStaffId());
-
+	    String originalPassword = null;
+	  	try {
+	  		originalPassword = AccountService.encodeOriginalPassword(password);
+	  	} catch (UnsupportedEncodingException e1) {
+	  		// TODO Auto-generated catch block
+	  		e1.printStackTrace();
+	  	}
+	  	
 		status.setGroupId(groupId);// groupId默认是defaultGroup
 
-
-
-		
-		
-        BigDecimal enable = new BigDecimal(
-        		ConstraintTypeEnum.TYPE_ENABLE_ALL_ENUM.getValue());
-
-
-//		status.setLoginConstraint(new BigDecimal("0"));// 登陆限制
-//		status.setOpenBuyConstraint(ableAll);// 新规买限制
-//		status.setOpenSellConstraint(ableAll);// 新规卖限制
-//		status.setCloseBuyConstraint(ableAll);// 决计买限制
-//		status.setCloseSellConstraint(ableAll);// 决计卖限制
-//		status.setStraddleOptionFlag(new BigDecimal("0"));// 两建
-//		status.setWithdrawalConstraint(new BigDecimal("0"));// 出金限制
-
+		status.setInputStaffId(customer.getUpdateStaffId());
 		status.setAccountStatus(new BigDecimal("0"));
 		status.setAccountActiveStatus(new BigDecimal("0"));
 
-		String frontDate = customer.getApplicationDate();
 
 		status.setAccountActiveStatusDate(frontDate);
 		status.setPasswordUpdateDate(frontDate);
@@ -505,15 +515,48 @@ public class AccountOpenService {
         status.setCloseSellConstraint(enable); // 决计卖限制
         status.setStraddleOptionFlag(enable); // 两建
         status.setLosscutConstrant(enable); // Losscut
+        
 
-        status.setAccountActiveStatusDate(frontDate);
-		
-		// 保存用户状态信息到JHF_CUSTOMER_STATUS表
-		m_customerDao.storeCustomerStatus(status);
-		
-		System.out.println("=== storeCustomerStatus  begin ... ");
-		
+        status.setLoginPassword(AccountService.encodePassword(password));
+        status.setOriginalPassword(originalPassword);
+        // all #26 add
+        status.setAlertRatioFlag(BigDecimal.ZERO);
+        status.setLosscutRatioFlag(BigDecimal.ZERO);
+        status.setAlertRatio(BigDecimal.ZERO);
+        status.setLosscutRatio(BigDecimal.ZERO);
+        status.setAlertMailCount(BigDecimal.ONE);
+        status.setLosscutMailCount(BigDecimal.ZERO);
+
+
+        generateLoginId(customer);
+
+		try {
+			assignVirtualAccountNo(customer);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		customer.setAccountActiveStatusDate(frontDate);
+		customer.setPasswordUpdateDate(frontDate);
+      try {
+		customer.setAccountOpenDate(ServiceFactory.getCoreService().getFrontDate());
+	} catch (CoreException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	}
+
+      	customer.setCustomerOrderNo(BigDecimal.ZERO + "");
+
+
+
+      m_customerDao.storeCustomerStatus(status);
+      
+      System.out.println("=== storeCustomerStatus  over ... ");
+      System.out.println(" FINISH CUSTOMER STATUS  MSG :");
+      System.out.println(" MSG :" +"/r/n"+status.toString());
+  }
+		
 
 	
 	
@@ -675,7 +718,7 @@ public class AccountOpenService {
 			throws DaoException {
 		
 		System.out.println("=== storeLeverageGroup  begin ... ");
-
+		System.out.println("GROUP ID:"+groupId);
 		List<JhfGroupProductBand> list = null;// 用户对应组别的所有product信息
 
 		// 检索用户所在组的所有product信息
@@ -1575,5 +1618,105 @@ public class AccountOpenService {
             throw new AccountException(AccountException.DATA_ACCESS_ERROR, "saveJhfCustomerInfoChangeLog other error",
                     e);
         }
+    }
+    
+    /**
+     * 生成loginId
+     * 
+     * @param customer
+     * @throws DaoException
+     * 
+     * @author yaolin <yaolin@bestwiz.cn>
+     */
+    private synchronized void generateLoginId(CustomerInfo customer) 
+    throws DaoException {
+
+        if (!StringUtils.isBlank(customer.getLoginId())) {
+            return;
+        }
+
+        StringBuffer loginId = new StringBuffer();
+
+        if (CorporationTypeEnum.TYPE_CORPORATE_ENUM.getValue() == customer.getCorporationType().intValue()) {
+            loginId.append("C");
+        } else {
+            loginId.append("I");
+        }
+
+        String emailPc = customer.getEmailPc();
+
+        int len = emailPc.length();
+        int n = 0;
+
+        for (int i = 0; i < len && n < 2; i++) {
+
+            char c = emailPc.charAt(i);
+
+            if (ValidatorUtil.isHalfWidthDigitorAlpha(c)) {
+                loginId.append(c);
+                n++;
+            }
+        }
+
+        if (n < 2) {
+
+            SecureRandom random = new SecureRandom();
+
+            for (; n <= 2; n++) {
+                int x = random.nextInt(PasswordCharsBean.length() - 1);
+                loginId.append(PasswordCharsBean.getAt(x));
+            }
+        }
+
+        String max = m_customerDao.getCustomerStatusMaxLoginId(loginId + "");
+
+        BigDecimal num;
+
+        try {
+            num = new BigDecimal(max);
+        } catch (Exception e) {
+            num = BigDecimal.ZERO;
+        }
+
+        num = num.add(BigDecimal.ONE);
+
+        DecimalFormat formatter = new DecimalFormat("00000");
+
+        loginId.append(formatter.format(num));
+
+        customer.setLoginId(loginId + "");
+
+        System.out.println("generateLoginId loginId: " + loginId);
+    }
+
+    
+    
+    private synchronized void assignVirtualAccountNo(CustomerInfo customer) throws Exception {
+
+        if (!StringUtils.isBlank(customer.getVirtualAccountNo())) {
+            return;
+        }
+
+        JhfVirtualAccountNo jhfVirtualAccountNo = m_customerDao.obtainMinUnUsedVirtualAccountNo();
+
+        if (jhfVirtualAccountNo == null) {
+            throw new Exception(
+                    "assignVirtualAccountNo no virtualAccountNo error");
+        }
+
+        jhfVirtualAccountNo.setCustomerId(customer.getCustomerId());
+        jhfVirtualAccountNo
+                .setStatus(new BigDecimal(VirtualAccountStatusEnum.VIRTUALACCOUNTSTATUS_USED_ENUM.getValue()));
+        jhfVirtualAccountNo.setUpdateStaffId(customer.getUpdateStaffId());
+
+        m_customerDao.update(jhfVirtualAccountNo);
+
+        String virtualAccountNo = jhfVirtualAccountNo.getVirtualAccountNo();
+
+        customer.setVirtualAccountNo(virtualAccountNo);
+        customer.setBankName(jhfVirtualAccountNo.getBankName());
+        customer.setBankBranchName(jhfVirtualAccountNo.getBankBranchName());
+
+        System.out.println("assignVirtualAccountNo virtualAccountNo: " + virtualAccountNo);
     }
 }
