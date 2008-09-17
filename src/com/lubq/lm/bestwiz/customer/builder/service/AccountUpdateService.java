@@ -1290,73 +1290,7 @@ public final class AccountUpdateService {
         customer.setDateTime(DateHelper.getTodaysTimestamp());
     }
 
-    /**
-     * 生成loginId
-     * 
-     * @param customer
-     * @throws DaoException
-     * 
-     * @author yaolin <yaolin@bestwiz.cn>
-     */
-    private synchronized void generateLoginId(CustomerInfo customer) throws DaoException {
 
-        if (!StringUtils.isBlank(customer.getLoginId())) {
-            return;
-        }
-
-        StringBuffer loginId = new StringBuffer();
-
-        if (CorporationTypeEnum.LEGAL_ENUM.getValue() == customer.getCorporationType().intValue()) {
-            loginId.append("C");
-        } else {
-            loginId.append("I");
-        }
-
-        String emailPc = customer.getEmailPc();
-
-        int len = emailPc.length();
-        int n = 0;
-
-        for (int i = 0; i < len && n < 2; i++) {
-
-            char c = emailPc.charAt(i);
-
-            if (ValidatorUtil.isHalfWidthDigitorAlpha(c)) {
-                loginId.append(c);
-                n++;
-            }
-        }
-
-        if (n < 2) {
-
-            SecureRandom random = new SecureRandom();
-
-            for (; n <= 2; n++) {
-                int x = random.nextInt(PasswordCharsBean.length() - 1);
-                loginId.append(PasswordCharsBean.getAt(x));
-            }
-        }
-
-        String max = m_customerDao.getCustomerStatusMaxLoginId(loginId + "");
-
-        BigDecimal num;
-
-        try {
-            num = new BigDecimal(max);
-        } catch (Exception e) {
-            num = BigDecimal.ZERO;
-        }
-
-        num = num.add(BigDecimal.ONE);
-
-        DecimalFormat formatter = new DecimalFormat("00000");
-
-        loginId.append(formatter.format(num));
-
-        customer.setLoginId(loginId + "");
-
-        LOGGER.info("generateLoginId loginId: " + loginId);
-    }
 
     /**
      * 分配VirtualAccountNo
