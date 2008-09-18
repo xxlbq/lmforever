@@ -102,10 +102,11 @@ public class OrderForm {
 		this.slippage = slippage;
 	}
 	public int getExecutionType() {
-		return executionType;
+		return this.executionType;
 	}
 	public void setExecutionType(int executionTypeIndex) {
 		this.executionType = ComboConstants.executionTypeArr[executionTypeIndex];
+		System.out.println("execution TYPE : "+executionType);
 	}
 	
 

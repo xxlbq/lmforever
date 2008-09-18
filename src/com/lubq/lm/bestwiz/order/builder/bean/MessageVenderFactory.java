@@ -72,6 +72,17 @@ public class MessageVenderFactory {
 			orderVender.setOrderBindType(of.getOrderBindType());
 		}
 
+		if(of.getExecutionType() == 0 || of.getExecutionType() == 1){
+			orderVender.setOrderBindType(10);
+		}
+		
+		if(of.getExecutionType() == 12){
+			orderVender.setOrderBindType(12);
+		}
+		
+		if(of.getExecutionType() == 100){
+			orderVender.setOrderBindType(100);
+		}
 		
 		return orderVender;
 	}

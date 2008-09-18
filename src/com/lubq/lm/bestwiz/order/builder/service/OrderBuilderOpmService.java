@@ -81,7 +81,10 @@ public class OrderBuilderOpmService extends OrderBuilderAbstractFactory{
 		order.setExecutionType(new BigDecimal(String.valueOf(orderMessageVender.getExecutionType())));
 		order.setActiveFlag(BigDecimal.ONE);
 		order.setOrderPrice(orderMessageVender.getOrderPrice());
+		
+//		order.setRevisionNumber(new BigDecimal("1"));
 		order.setRevisionNumber(1);
+		
 		order.setOrderStatus(new BigDecimal(orderStatuStr));
 		order.setSlippage(null);
 		order.setOrderType(new BigDecimal(orderTypeStr));

@@ -126,11 +126,14 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 			afterMultiInstantsOrder(muliBindInfoList);
 			
 			System.out.println("Multi bind info send over .");
+			System.out.println("send orderbind info:"+muliBindInfoList);
+			
 		}else{
 			System.out.println("Single bind info sending ...");
 			afterSingleInstantsOrder(singleBindInfo);
 			
 			System.out.println("Single bind info send over .");
+			System.out.println("send orderbind info:"+singleBindInfo);
 		}
 		
 		OrderBuilderView.increaseOrderProcess(2 * OrderBuilderView.scaling); 

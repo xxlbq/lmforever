@@ -57,6 +57,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
+	private Combo orderPrice_combo;
 	private Combo settle_pair_combo;
 	private Label settle_curPair_label;
 	private Combo settel_type_combo;
@@ -73,7 +74,6 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 	private Label executionType_label;
 	private Combo orderAmount_combo;
 	private Label orderAmount_label;
-	private Text orderPrice_text;
 	private Label orderPrice_label;
 	private ProgressBar order_progressBar;
 	private Label process_label;
@@ -306,6 +306,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						orderBatchSize_combo.add("80", 8);
 						orderBatchSize_combo.add("90", 9);
 						orderBatchSize_combo.add("100", 10);
+						orderBatchSize_combo.add("500", 11);
 						
 						orderBatchSize_combo.select(0);
 					}
@@ -350,11 +351,6 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						orderPrice_label = new Label(group2, SWT.NONE);
 						orderPrice_label.setText("order price :");
 						orderPrice_label.setBounds(7, 188, 63, 15);
-					}
-					{
-						orderPrice_text = new Text(group2, SWT.NONE);
-						orderPrice_text.setBounds(91, 184, 63, 21);
-						orderPrice_text.setText("200.00");
 					}
 					{
 						orderAmount_label = new Label(group2, SWT.NONE);
@@ -419,6 +415,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						bindBatchSize_combo.add("9",8);
 						bindBatchSize_combo.add("10",9);
 						bindBatchSize_combo.add("50",10);
+						bindBatchSize_combo.add("500",11);
 						bindBatchSize_combo.select(0);
 					}
 					{
@@ -429,6 +426,17 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 //						doOpenOrder_button.setData("ACTION_SOURCE", "OPEN");
 						doOpenOrder_button
 							.addMouseListener(new OpenOrderMouseAdapter());
+					}
+					{
+						orderPrice_combo = new Combo(group2, SWT.NONE);
+						orderPrice_combo.setBounds(91, 182, 63, 21);
+						
+						orderPrice_combo.add("100.00",0);
+						orderPrice_combo.add("200.00",1);
+						orderPrice_combo.add("10.00",2);
+						
+						orderPrice_combo.select(1);
+						
 					}
 				}
 				{
@@ -587,7 +595,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 		int     orderBindBatchSize 		= Integer.parseInt( this.getBindBatchSize_combo().getText() );
 		boolean isBatch 				= Boolean.valueOf( this.getIsBatch_combo().getText() );
 		int  	mode 					= this.getMode_combo().getSelectionIndex();
-		BigDecimal orderPrice 			= new BigDecimal( this.getOrderPrice_text().getText() );
+		BigDecimal orderPrice 			= new BigDecimal( this.getOrderPrice_combo().getText() );
 		BigDecimal orderAmount 			= new BigDecimal(this.getOrderAmount_combo().getText());
 		
 		BigDecimal slippage 			= new BigDecimal(this.getSlippage_combo().getText());
@@ -902,12 +910,14 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 		this.orderAmount_combo = orderAmount_combo;
 	}
 
-	public Text getOrderPrice_text() {
-		return orderPrice_text;
+
+
+	public Combo getOrderPrice_combo() {
+		return orderPrice_combo;
 	}
 
-	public void setOrderPrice_text(Text orderPrice_text) {
-		this.orderPrice_text = orderPrice_text;
+	public void setOrderPrice_combo(Combo orderPrice_combo) {
+		this.orderPrice_combo = orderPrice_combo;
 	}
 
 	public Combo getMode_combo() {
