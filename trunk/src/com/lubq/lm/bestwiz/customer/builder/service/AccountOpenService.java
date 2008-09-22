@@ -172,7 +172,7 @@ public class AccountOpenService {
             customer.setDocumentSendStatus(new BigDecimal("0"));
 
             customer.setAccountOpenStatus(new BigDecimal(
-                    AccountOpenStatusEnum.ACCOUNT_DOCUMENT_WAIT_ENUM.getValue()));
+                    AccountOpenStatusEnum.OPEN.getValue()));
 
             customer.setDateTime(DateHelper.getSystemTimestamp());
 
@@ -529,9 +529,12 @@ public class AccountOpenService {
 
 
         generateLoginId(customer);
+        status.setLoginId(customer.getLoginId());
 
 		try {
 			assignVirtualAccountNo(customer);
+			status.setVirtualAccountNo(customer.getVirtualAccountNo());
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
