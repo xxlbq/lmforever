@@ -1,6 +1,5 @@
 package com.lubq.lm.util;
 
-import cn.bestwiz.jhf.admin.common.BaseBean;
 
 /**
  * 用于生成密码的字符集
@@ -11,7 +10,7 @@ import cn.bestwiz.jhf.admin.common.BaseBean;
  * @copyright 2006, BestWiz(Dalian) Co.,Ltd
  * @version $Id: PasswordCharsBean.java,v 1.1 2007/05/12 04:17:01 zhangwc Exp $
  */
-public class PasswordCharsBean extends BaseBean {
+public class PasswordCharsBean  {
 
     private static final long serialVersionUID = -7367807582970958975L;
 
