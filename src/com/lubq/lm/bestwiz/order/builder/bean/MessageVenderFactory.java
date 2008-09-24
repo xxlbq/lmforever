@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import cn.bestwiz.jhf.core.util.CollectionsUtil;
+
 
 import com.lm.common.util.prop.PropertiesUtil;
 import com.lubq.lm.util.CollectionUtil;

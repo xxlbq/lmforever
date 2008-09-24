@@ -111,7 +111,7 @@ public class CustomerBuilderService implements CustomerBuilder{
 		
 		
 		
-		System.out.println(StringCommonUtil.reflectionToString(info));
+//		System.out.println(StringCommonUtil.reflectionToString(info));
 		
 		return info;
 	}

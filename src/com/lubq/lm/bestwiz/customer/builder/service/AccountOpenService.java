@@ -65,6 +65,7 @@ import cn.bestwiz.jhf.core.dao.bean.main.JhfMailActionMap;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailActionMapId;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAddress;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfMailAddressId;
+import cn.bestwiz.jhf.core.dao.bean.main.JhfOrderNoGenerator;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfPersonal;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfVirtualAccountNo;
 import cn.bestwiz.jhf.core.dao.exception.DataBaseConnectionException;
@@ -172,7 +173,7 @@ public class AccountOpenService {
             customer.setDocumentSendStatus(new BigDecimal("0"));
 
             customer.setAccountOpenStatus(new BigDecimal(
-                    AccountOpenStatusEnum.OPEN.getValue()));
+                    AccountOpenStatusEnum.ACCOUNT_OPEN_ENUM.getValue()));
 
             customer.setDateTime(DateHelper.getSystemTimestamp());
 
@@ -203,6 +204,9 @@ public class AccountOpenService {
             
              /** 7.保存cash_balance信息 */
              storeCashBalance(customer);
+             
+             /** 8.保存JhfOrderNoGenerator信息 */
+             storeJhfOrderNoGenerator(customer);
 
             // 事务完成后进行提交操作，如果有错误，所有操作回滚。
             DbSessionFactory.commitTransaction(DbSessionFactory.MAIN);
@@ -306,7 +310,7 @@ public class AccountOpenService {
 
 
         m_customerDao.storeCustomer(jhfCustomer);
-        System.out.println("=== storeCustomer  over ... ");
+        System.out.println("=== storeCustomer  over ... customerId="+jhfCustomer.getCustomerId());
     }
 
     /**
@@ -555,9 +559,10 @@ public class AccountOpenService {
 
       m_customerDao.storeCustomerStatus(status);
       
-      System.out.println("=== storeCustomerStatus  over ... ");
+      System.out.println("=== storeCustomerStatus  over ... customerId=" 
+    		  + status.getCustomerId()+",loginId="+status.getLoginId());
       System.out.println(" FINISH CUSTOMER STATUS  MSG :");
-      System.out.println(" MSG :" +"/r/n"+status.toString());
+//      System.out.println(" MSG :" +"/r/n"+status.toString());
   }
 		
 
@@ -788,6 +793,33 @@ public class AccountOpenService {
 		System.out.println("=== storeCashBalance  begin ... ");
 	}
     
+     
+     
+     
+     /**
+      * 保存用户详细信息到JhfOrderNoGenerator表
+      * 
+      * @param customer
+      * @throws AdminServiceException
+      * @throws DaoException
+      * 
+      * @author yaolin <yaolin@bestwiz.cn>
+      */
+     private void storeJhfOrderNoGenerator(CustomerInfo customer) throws Exception {
+
+         JhfOrderNoGenerator jhfOrderNoGenerator = (JhfOrderNoGenerator) m_customerDao.get(JhfOrderNoGenerator.class,
+                 customer.getCustomerId());
+
+         if (jhfOrderNoGenerator != null) {
+             throw new Exception("[AccountUpdateService.storeJhfOrderNoGenerator()] jhfOrderNoGenerator already exist!");
+         }
+
+         jhfOrderNoGenerator = new JhfOrderNoGenerator(); // 数据库操作bean
+         OgnlUtil.copy(customer, jhfOrderNoGenerator, null);
+
+         m_customerDao.save(jhfOrderNoGenerator);
+     }
+     
      /**
 		 * 获取默认的用户分组(系统目前全部为defaultGroup
 		 * 

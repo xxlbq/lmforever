@@ -57,6 +57,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
+	private Combo customerId_combo;
 	private Combo orderPrice_combo;
 	private Combo settle_pair_combo;
 	private Label settle_curPair_label;
@@ -90,7 +91,6 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 	private Label currencyPair_label;
 	private Group group2;
 	private Group group1;
-	private Text customerId_text;
 	private MenuItem aboutMenuItem;
 	private MenuItem contentsMenuItem;
 	private Menu helpMenu;
@@ -194,11 +194,6 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 					group1.setText("Customer Info");
 					group1.setBounds(21, 21, 644, 70);
 					{
-						customerId_text = new Text(group1, SWT.NONE);
-						customerId_text.setBounds(77, 21, 56, 14);
-						customerId_text.setText("00000101");
-					}
-					{
 						customerId_label = new Label(group1, SWT.NONE);
 						customerId_label.setText("customer id :");
 						customerId_label.setBounds(8, 21, 63, 15);
@@ -212,6 +207,12 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						customerIdlist_list = new StyledText(group1, SWT.BORDER);
 						customerIdlist_list.setBounds(273, 14, 66, 49);
 						
+					}
+					{
+						customerId_combo = new Combo(group1, SWT.NONE);
+						customerId_combo.setBounds(77, 21, 56, 14);
+						customerId_combo.add("00000101",0);
+						customerId_combo.add("00006701",1);
 					}
 				}
 				{
@@ -587,7 +588,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 		
 //		System.out.println("========:"+this.getCustomerIdlist_list().getText());
 		
-		String 	cId 					= this.getCustomerId_text().getText();
+		String 	cId 					= this.getCustomerId_combo().getText();
 		java.util.List<String> cIdList 	= StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
 		String 	currencyPair 			= this.getCurrencyPair_combo().getText();
 		int 	sideIndex 				= this.getSide_combo().getSelectionIndex();
@@ -628,7 +629,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 		
 //		System.out.println("========:"+this.getCustomerIdlist_list().getText());
 		
-		String 	cId 	= this.getCustomerId_text().getText();
+		String 	cId 	= this.getCustomerId_combo().getText();
 		java.util.List<String> cIdList = StringUtil.splitString(this.getCustomerIdlist_list().getText(),"\r\n");
 		String 	settleCurrencyPair = this.getSettle_pair_combo().getText();
 		
@@ -930,6 +931,14 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 
 
+	public Combo getCustomerId_combo() {
+		return customerId_combo;
+	}
+
+	public void setCustomerId_combo(Combo customerId_combo) {
+		this.customerId_combo = customerId_combo;
+	}
+
 	public Combo getSettle_pair_combo() {
 		return settle_pair_combo;
 	}
@@ -986,13 +995,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 		this.currencyPair_combo = currencyPair_combo;
 	}
 
-	public Text getCustomerId_text() {
-		return customerId_text;
-	}
 
-	public void setCustomerId_text(Text customerId_text) {
-		this.customerId_text = customerId_text;
-	}
 
 
 	public Combo getBindBatchSize_combo() {
