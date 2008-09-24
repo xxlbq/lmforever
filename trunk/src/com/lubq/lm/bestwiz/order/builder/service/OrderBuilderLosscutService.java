@@ -94,6 +94,8 @@ public class OrderBuilderLosscutService extends OrderBuilderAbstractFactory{
 		order.setActiveFlag(BigDecimal.ONE);
 		
 		order.setRevisionNumber(1);
+//		order.setRevisionNumber(new BigDecimal("1"));
+		
 		order.setOrderStatus(new BigDecimal(orderStatuStr));
 		order.setSlippage(new BigDecimal("0.99"));
 		order.setOrderType(new BigDecimal(orderTypeStr));

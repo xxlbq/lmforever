@@ -118,10 +118,10 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 	public void finishOrder() throws JMSException {
 		
 		if(getOrderBuilderMessageVender().isDoBatch()){
-			if(getOrderBuilderMessageVender().getTradeType() == 1){
-				System.out.println(" ==============  settle order   .  not send msg  ");
-				return;
-			}
+//			if(getOrderBuilderMessageVender().getTradeType() == 1){
+//				System.out.println(" ==============  settle order   .  not send msg  ");
+//				return;
+//			}
 			System.out.println("Multi bind info sending ...");
 			afterMultiInstantsOrder(muliBindInfoList);
 			
@@ -349,6 +349,8 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		order.setActiveFlag(BigDecimal.ONE);
 		
 		order.setRevisionNumber(1);
+//		order.setRevisionNumber(new BigDecimal("1"));
+		
 		order.setOrderStatus(new BigDecimal(orderStatuStr));
 		order.setSlippage(orderMessageVender.getSlippage());
 		order.setOrderType(new BigDecimal(orderTypeStr));

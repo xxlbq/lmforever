@@ -1,0 +1,11 @@
+panta
+
+-DconfigPath=E:\\java\\eclipse-3.3-bestwiz-wp\\jhf_panta_core\\conf
+
+mj
+
+-DconfigPath=E:\\java\\eclipse-3.3-bestwiz-wp\\jhf_mj_core\\conf
+
+
+fes
+
