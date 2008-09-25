@@ -245,7 +245,9 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		
 		}else{//决计
 
-			
+			//每个bind包括多少条决计注文
+			final int  ordersInBind = 200;
+			//
 			muliBindInfoList = new ArrayList<OrderBindInfo>();
 			// 多个customerId
 			List<String> customerIdList = orderMessageVender.getCustomerIdList();
@@ -265,6 +267,8 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 					List<JhfAliveOrder> orderList = new ArrayList<JhfAliveOrder>();
 					List<JhfAliveContract> contractList = getContractByCustomerId(orderMessageVender);
 					
+					System.out.println(" All settle contarct size:"+contractList.size());
+					
 //					List<JhfOrderBind> orderBindList = new ArrayList<JhfOrderBind>();
 					// 生成orderBindId ，一个bindId，对应多个orderId
 					String orderbindId = IdGenerateFacade.getOrderBindId();
@@ -273,9 +277,10 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 					for (int i = 0; i < contractSize; i++) {
 						// 创建order对象，并添加到orderList中
 						JhfAliveOrder order = createSettleOrder(cstId,orderbindId,contractList.get(i));
-						System.out.println("settle order :"+order);
+//						System.out.println("settle order :"+order);
 						orderList.add(order);
-						OrderBuilderView.increaseOrderProcess(4); 
+						
+//						OrderBuilderView.increaseOrderProcess(4); 
 
 						// 创建orderBind对象，并添加到orderBindList中
 //						JhfOrderBind bind = createOrderBind(orderbindId, order
@@ -286,14 +291,15 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 						
 						
 						//更新 amountSetting
-						System.out.println("order amount :"+order.getOrderAmount());
-						DAOFactory.getContractDao().changeSettleOrderToContract(order);
+//						System.out.println("order amount :"+order.getOrderAmount());
+						DAOFactory.getContractDao().changeSettleOrderToContract(order.getSettleContractId(),order.getOrderAmount());
+						System.out.println("c");
 					}
 					
 					System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +OrderBuilderView.orderPrcoessing);
 					// 将 order 写入db
 					writeBatchOrder(orderList);
-					OrderBuilderView.increaseOrderProcess(1 * orderList.size() ); 
+//					OrderBuilderView.increaseOrderProcess(1 * orderList.size() ); 
 					// 将 orderbind 写入 db
 //					writeBatchOrderBind(orderBindList);
 
@@ -301,10 +307,10 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 
 					// 创建orderBindInfo对象，并添加到orderBindInfoList中
 					OrderBindInfo bindInfo = setupMuliOrdersOrderBindInfo(orderbindId,orderMessageVender.getOrderBindType(), orderList);
-					OrderBuilderView.increaseOrderProcess( 1 * orderList.size() );
+//					OrderBuilderView.increaseOrderProcess( 1 * orderList.size() );
 					muliBindInfoList.add(bindInfo);
 //				}
-				System.out.println("after customer:"+cstId+" , orderPrcoessing:"+OrderBuilderView.orderPrcoessing);
+//				System.out.println("after customer:"+cstId+" , orderPrcoessing:"+OrderBuilderView.orderPrcoessing);
 			}
 
 
@@ -370,6 +376,7 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 		order.setOrderRoute(BigDecimal.ZERO);
 		order.setOrderTime("123456");
 		order.setPriceId("PID007");
+		
 		order.setProductId("A001");//USD/JPY = A001,EUR/JPY = A002	
 //		order.setTradePrice(new BigDecimal(tradePriceStr));
 		order.setInputDate(new Date());
@@ -415,9 +422,9 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 //		order.setOrderAmount(contract.getAmountNoSettled());
 //		order.setSide(contract.getSide().negate());
 		
-		System.out.println("orderId:"+order.getId().getOrderId()+",orderSide:"+order.getSide()
-				+",contractId:"+contract.getContractId() + ",contractSide:"+contract.getSide()
-				+",orderPrice:"+contract.getOrderPrice());
+//		System.out.println("orderId:"+order.getId().getOrderId()+",orderSide:"+order.getSide()
+//				+",contractId:"+contract.getContractId() + ",contractSide:"+contract.getSide()
+//				+",orderPrice:"+contract.getOrderPrice());
 		return order;
 	}
 	
