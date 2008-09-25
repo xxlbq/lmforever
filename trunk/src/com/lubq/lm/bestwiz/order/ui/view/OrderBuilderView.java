@@ -210,9 +210,11 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 					}
 					{
 						customerId_combo = new Combo(group1, SWT.NONE);
-						customerId_combo.setBounds(77, 21, 56, 14);
+						customerId_combo.setBounds(77, 21, 80, 14);
 						customerId_combo.add("00000101",0);
-						customerId_combo.add("00006701",1);
+						customerId_combo.add("00003242",1);
+						customerId_combo.add("00006701",2);
+						
 					}
 				}
 				{
