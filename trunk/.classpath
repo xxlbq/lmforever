@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="/lmcommon/lib/xwork-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/hiber8/hibernate3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jhf_mj_core"/>
+	<classpathentry kind="lib" path="lib/substance/substance-5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
