@@ -292,8 +292,9 @@ public class OrderBuilderInstantService extends OrderBuilderAbstractFactory{
 						
 						//更新 amountSetting
 //						System.out.println("order amount :"+order.getOrderAmount());
-						DAOFactory.getContractDao().changeSettleOrderToContract(order.getSettleContractId(),order.getOrderAmount());
-						System.out.println("c");
+//						DAOFactory.getContractDao().changeSettleOrderToContract(order.getSettleContractId(),order.getOrderAmount());
+						DAOFactory.getContractDao().changeSettleOrderToContract(order);
+						System.out.println(" === order " + order.getId().getOrderId() + " === is finished ! ");
 					}
 					
 					System.out.println("after order increase  orderbindid:"+orderbindId+" , orderPrcoessing:" +OrderBuilderView.orderPrcoessing);
