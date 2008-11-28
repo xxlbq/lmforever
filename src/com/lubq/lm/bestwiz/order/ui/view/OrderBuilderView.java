@@ -1,6 +1,8 @@
+
 package com.lubq.lm.bestwiz.order.ui.view;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -25,8 +27,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
+import cn.bestwiz.jhf.core.bo.enums.CustTraderModeEnum;
 import cn.bestwiz.jhf.core.bo.enums.TradeTypeEnum;
 import cn.bestwiz.jhf.core.jms.DestinationConstant;
 import cn.bestwiz.jhf.core.jms.SimpleSender;
@@ -57,6 +59,14 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 	private Menu menu1;
 	private Label bindBatchSize_label;
+	private Combo slipType_combo;
+	private Label slipType_label;
+	private Combo isBlackOrder_combo;
+	private Label isBlackOrder_label;
+	private Combo isMobile_combo;
+	private Label isMobile_label;
+	private Combo contract_combo;
+	private Label settle_order_label;
 	private Combo customerId_combo;
 	private Combo orderPrice_combo;
 	private Combo settle_pair_combo;
@@ -150,6 +160,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 	/**
 	* Initializes the GUI.
 	*/
+	@SuppressWarnings("unchecked")
 	private void initGUI() {
 		try {
 			
@@ -221,7 +232,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 					group2 = new Group(composite1, SWT.NONE);
 					group2.setLayout(null);
 					group2.setText("Open Order Info");
-					group2.setBounds(21, 112, 644, 273);
+					group2.setBounds(21, 112, 644, 287);
 					
 					{
 						executionType_label = new Label(group2, SWT.NONE);
@@ -309,7 +320,8 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						orderBatchSize_combo.add("80", 8);
 						orderBatchSize_combo.add("90", 9);
 						orderBatchSize_combo.add("100", 10);
-						orderBatchSize_combo.add("500", 11);
+						orderBatchSize_combo.add("300", 11);
+						orderBatchSize_combo.add("500", 12);
 						
 						orderBatchSize_combo.select(0);
 					}
@@ -332,11 +344,21 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 					{
 						mode_combo = new Combo(group2, SWT.READ_ONLY);
 						mode_combo.setBounds(91, 154, 63, 21);
-						mode_combo.add("normal",0);
-						mode_combo.add("stay pos",1);
-						mode_combo.add("manual",2);
+
 						
-						mode_combo.select(1);
+				    	List<CustTraderModeEnum> enList =  CustTraderModeEnum.getEnumList();
+				    	
+				    	for (int i = 0; i < enList.size(); i++) {
+				    		CustTraderModeEnum cenum = enList.get(i);
+				    		mode_combo.add(cenum.getName(),i);
+							
+						}
+				    	
+				    		
+						
+						
+						
+						mode_combo.select(0);
 						
 						mode_combo.addSelectionListener(new SelectionAdapter( ) {
 				            public void widgetSelected(SelectionEvent e) {
@@ -350,6 +372,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						
 						
 					}
+					
 					{
 						orderPrice_label = new Label(group2, SWT.NONE);
 						orderPrice_label.setText("order price :");
@@ -388,7 +411,7 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 					}
 					{
 						slippage_combo = new Combo(group2, SWT.NONE);
-						slippage_combo.setBounds(270, 184, 63, 21);
+						slippage_combo.setBounds(270, 182, 63, 21);
 						
 
 						
@@ -417,15 +440,18 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						bindBatchSize_combo.add("8",7);
 						bindBatchSize_combo.add("9",8);
 						bindBatchSize_combo.add("10",9);
-						bindBatchSize_combo.add("50",10);
-						bindBatchSize_combo.add("500",11);
+						bindBatchSize_combo.add("30",10);
+						bindBatchSize_combo.add("50",11);
+						bindBatchSize_combo.add("100",12);
+						bindBatchSize_combo.add("300",13);
+						bindBatchSize_combo.add("500",14);
 						bindBatchSize_combo.select(0);
 					}
 					{
 						doOpenOrder_button = new Button(group2, SWT.PUSH
 							| SWT.CENTER);
 						doOpenOrder_button.setText("\u65b0\u89c4\u6ce8\u6587");
-						doOpenOrder_button.setBounds(539, 245, 98, 21);
+						doOpenOrder_button.setBounds(539, 259, 98, 21);
 //						doOpenOrder_button.setData("ACTION_SOURCE", "OPEN");
 						doOpenOrder_button
 							.addMouseListener(new OpenOrderMouseAdapter());
@@ -440,6 +466,48 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 						
 						orderPrice_combo.select(1);
 						
+					}
+					{
+						isMobile_label = new Label(group2, SWT.NONE);
+						isMobile_label.setText("is Mobile");
+						isMobile_label.setBounds(180, 218, 84, 14);
+					}
+					{
+						isMobile_combo = new Combo(group2, SWT.NONE);
+						isMobile_combo.setBounds(270, 215, 63, 21);
+						
+						isMobile_combo.add("false",0);
+						isMobile_combo.add("true",1);
+						isMobile_combo.select(0);
+						
+					}
+					{
+						isBlackOrder_label = new Label(group2, SWT.NONE);
+						isBlackOrder_label.setText("isBlackOrder :");
+						isBlackOrder_label.setBounds(7, 249, 84, 14);
+					}
+					{
+						isBlackOrder_combo = new Combo(group2, SWT.NONE);
+						isBlackOrder_combo.setBounds(91, 245, 63, 21);
+						
+						isBlackOrder_combo.add("false",0);
+						isBlackOrder_combo.add("true",1);
+						isBlackOrder_combo.select(0);
+					}
+					{
+						slipType_label = new Label(group2, SWT.NONE);
+						slipType_label.setText("slipType :");
+						slipType_label.setBounds(180, 245, 63, 21);
+					}
+					{
+						slipType_combo = new Combo(group2, SWT.NONE);
+						slipType_combo.setBounds(269, 245, 63, 21);
+						
+						slipType_combo.add("1", 0);
+						slipType_combo.add("2", 1);
+						slipType_combo.add("3", 2);
+
+						slipType_combo.select(0);
 					}
 				}
 				{
@@ -513,18 +581,42 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 							settle_order_group,
 							SWT.NONE);
 						settle_curPair_label.setText("settle currency pair :");
-						settle_curPair_label.setBounds(189, 24, 100, 15);
+						settle_curPair_label.setBounds(170, 24, 100, 15);
 					}
 					{
 						settle_pair_combo = new Combo(
 							settle_order_group,
 							SWT.NONE);
-						settle_pair_combo.setBounds(301, 21, 63, 21);
+						settle_pair_combo.setBounds(274, 21, 63, 21);
 						settle_pair_combo.add("USD/JPY", 0);
 						settle_pair_combo.add("EUR/JPY", 1);
 						settle_pair_combo.add("EUR/USD", 2);
 						settle_pair_combo.add("AUD/USD", 3);
 						settle_pair_combo.add("ALL",4);
+						settle_pair_combo.addSelectionListener(new SelectionAdapter() {
+						      public void widgetSelected(SelectionEvent event) {
+						          // When the button is clicked, close the child shell
+						          System.out.println(" select is done:"
+						        		  + "currencyPair:"+settle_pair_combo.getText()
+						        		  + "customerId:"+customerId_combo.getText());
+						          
+						        }
+						      });
+							
+						
+						
+						
+					}
+					{
+						settle_order_label = new Label(
+							settle_order_group,
+							SWT.NONE);
+						settle_order_label.setText("settle order :");
+						settle_order_label.setBounds(357, 24, 63, 15);
+					}
+					{
+						contract_combo = new Combo(settle_order_group, SWT.NONE);
+						contract_combo.setBounds(427, 21, 63, 21);
 					}
 				}
 			}
@@ -605,7 +697,9 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 		int executionTypeIndex 			= this.getExecutionType_combo().getSelectionIndex();
 		
 		int tradeType 					= TradeTypeEnum.TRADE_OPEN_ENUM.getValue();
-	
+		boolean isMobile 				= Boolean.parseBoolean( this.getIsMobile_combo().getText());
+		boolean isBlackOrder			= Boolean.parseBoolean( this.isBlackOrder_combo.getText());
+		int slipType					= Integer.parseInt(this.getSlipType_combo().getText());
 		
 		of.setCustomerId(cId);
 		of.setCustomerIdList(cIdList);
@@ -622,7 +716,10 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 		of.setOrderBindType(executionTypeIndex);
 		of.setTradeType(tradeType);
+		of.setMobile(isMobile);
 		
+		of.setBlackOrder(isBlackOrder);
+		of.setSlipType(slipType);
 	}
 
 	
@@ -915,6 +1012,20 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 
 
 
+	/**
+	 * @return the slipType_combo
+	 */
+	public Combo getSlipType_combo() {
+		return slipType_combo;
+	}
+
+	/**
+	 * @param slipType_combo the slipType_combo to set
+	 */
+	public void setSlipType_combo(Combo slipType_combo) {
+		this.slipType_combo = slipType_combo;
+	}
+
 	public Combo getOrderPrice_combo() {
 		return orderPrice_combo;
 	}
@@ -1009,6 +1120,14 @@ public class OrderBuilderView extends org.eclipse.swt.widgets.Composite {
 	}
 
 	
+
+	public Combo getIsMobile_combo() {
+		return isMobile_combo;
+	}
+
+	public void setIsMobile_combo(Combo isMobile_combo) {
+		this.isMobile_combo = isMobile_combo;
+	}
 
 	public StyledText getCustomerIdlist_list() {
 		return customerIdlist_list;

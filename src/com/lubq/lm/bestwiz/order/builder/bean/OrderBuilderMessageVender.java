@@ -35,6 +35,11 @@ public class OrderBuilderMessageVender {
 	
 	private String topOrderId;
 	private String settleContractId;
+	private boolean isMobile;
+	
+	private boolean isBlackOrder;
+	int slipType;
+	
 	
 	
 	private List<JhfAliveOrder> settleOrderList;
@@ -44,6 +49,26 @@ public class OrderBuilderMessageVender {
 	}
 	
 	
+
+
+
+
+
+	public boolean isMobile() {
+		return isMobile;
+	}
+
+
+
+
+
+
+
+	public void setMobile(boolean isMobile) {
+		this.isMobile = isMobile;
+	}
+
+
 
 
 
@@ -265,6 +290,58 @@ public class OrderBuilderMessageVender {
 		buf.append(cIdList +"]");
 
 		return buf.toString();
+	}
+
+
+
+
+
+
+
+	/**
+	 * @return the isBlackOrder
+	 */
+	public boolean isBlackOrder() {
+		return isBlackOrder;
+	}
+
+
+
+
+
+
+
+	/**
+	 * @param isBlackOrder the isBlackOrder to set
+	 */
+	public void setBlackOrder(boolean isBlackOrder) {
+		this.isBlackOrder = isBlackOrder;
+	}
+
+
+
+
+
+
+
+	/**
+	 * @return the slipType
+	 */
+	public int getSlipType() {
+		return slipType;
+	}
+
+
+
+
+
+
+
+	/**
+	 * @param slipType the slipType to set
+	 */
+	public void setSlipType(int slipType) {
+		this.slipType = slipType;
 	}
 	
 	
