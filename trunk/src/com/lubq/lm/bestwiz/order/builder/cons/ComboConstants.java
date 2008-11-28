@@ -8,7 +8,7 @@ public class ComboConstants {
 	
 	public static final int[] orderBindTypeArr = new int[]{12,100,8};
 	
-	
+	public static final int[] modeTypeArr = new int[]{-1,0,1,3,4,99};
 	
 	
 	

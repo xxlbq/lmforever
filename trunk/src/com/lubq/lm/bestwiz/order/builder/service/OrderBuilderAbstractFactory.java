@@ -147,6 +147,10 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		bindInfo.setType(orderBindType);
 		bindInfo.setSlippage(order.getSlippage());
 		bindInfo.setPriceId(order.getPriceId());
+		bindInfo.setMobileFlag(getOrderBuilderMessageVender().isMobile());
+		
+		bindInfo.setBlackOrder(getOrderBuilderMessageVender().isBlackOrder());
+		bindInfo.setSlipConfigType(getOrderBuilderMessageVender().getSlipType());
 		
 		return bindInfo;
 		
@@ -193,6 +197,10 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		bindInfo.setTradeId(null);
 		bindInfo.setTimequoteId(null);
 
+		bindInfo.setBlackOrder(getOrderBuilderMessageVender().isBlackOrder());
+		bindInfo.setSlipConfigType(getOrderBuilderMessageVender().getSlipType());
+		
+		
 		return bindInfo;
 		
 	}

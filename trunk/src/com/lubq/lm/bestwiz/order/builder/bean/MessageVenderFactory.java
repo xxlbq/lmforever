@@ -18,22 +18,23 @@ public class MessageVenderFactory {
 	public static OrderBuilderMessageVender createOrderMsgVender(String fullPropertyPath) {
 		
 		OrderBuilderMessageVender orderVender = new OrderBuilderMessageVender();
-		PropertiesUtil propUtil = loadProperty(fullPropertyPath);
-		
-		orderVender.setCustomerId(propUtil.getStringValue("customerId"));
-		orderVender.setCustomerIdList(propUtil.getStringListValue("customerId.list"));
-		
-		orderVender.setCurrencyPair(propUtil.getStringValue("currencyPair"));
-		orderVender.setSide(propUtil.getIntValue("side"));
-		orderVender.setOrderBatchSize(propUtil.getIntValue("orderBatchSize"));
-		orderVender.setOrderBindBatchSize(propUtil.getIntValue("orderBindListSize"));
-		orderVender.setDoBatch(propUtil.getBooleanValue("doBatch"));
-		orderVender.setMode(propUtil.getIntValue("mode"));
-		orderVender.setOrderPrice( new BigDecimal( propUtil.getStringValue("orderPrice") ) );
-		orderVender.setAmount(new BigDecimal( propUtil.getStringValue("amount")));
-		orderVender.setSlippage(new BigDecimal (propUtil.getStringValue("slippage")));
-		orderVender.setExecutionType( propUtil.getIntValue("executionType") );
-				
+//		PropertiesUtil propUtil = loadProperty(fullPropertyPath);
+//		
+//		orderVender.setCustomerId(propUtil.getStringValue("customerId"));
+//		orderVender.setCustomerIdList(propUtil.getStringListValue("customerId.list"));
+//		
+//		orderVender.setCurrencyPair(propUtil.getStringValue("currencyPair"));
+//		orderVender.setSide(propUtil.getIntValue("side"));
+//		orderVender.setOrderBatchSize(propUtil.getIntValue("orderBatchSize"));
+//		orderVender.setOrderBindBatchSize(propUtil.getIntValue("orderBindListSize"));
+//		orderVender.setDoBatch(propUtil.getBooleanValue("doBatch"));
+//		
+//		orderVender.setMode(propUtil.getIntValue("mode"));
+//		orderVender.setOrderPrice( new BigDecimal( propUtil.getStringValue("orderPrice") ) );
+//		orderVender.setAmount(new BigDecimal( propUtil.getStringValue("amount")));
+//		orderVender.setSlippage(new BigDecimal (propUtil.getStringValue("slippage")));
+//		orderVender.setExecutionType( propUtil.getIntValue("executionType") );
+//				
 		
 		return orderVender;
 	}
@@ -64,7 +65,17 @@ public class MessageVenderFactory {
 		orderVender.setOrderPrice(of.getOrderPrice());
 		orderVender.setAmount(of.getOrderAmount());
 		orderVender.setSlippage(of.getSlippage());
+		
+//		if(of.isBatch()){
+//			
+//		}
+		
+		
+		orderVender.setBlackOrder(of.isBlackOrder());
+		orderVender.setSlipType(of.getSlipType());
+		
 		orderVender.setExecutionType(of.getExecutionType());
+		orderVender.setMobile(of.isMobile());
 		
 		orderVender.setTradeType(of.getTradeType());
 		
