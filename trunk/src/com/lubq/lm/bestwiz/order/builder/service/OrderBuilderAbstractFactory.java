@@ -4,15 +4,20 @@ package com.lubq.lm.bestwiz.order.builder.service;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.lubq.lm.bestwiz.order.builder.dao.OrderBuilderDao;
 import com.lubq.lm.bestwiz.order.ui.view.OrderBuilderView;
 
+import cn.bestwiz.jhf.core.bo.bean.CustTradePolicy;
+import cn.bestwiz.jhf.core.bo.bean.FillingOrderInfo;
+import cn.bestwiz.jhf.core.bo.bean.OrderBindInfo;
+import cn.bestwiz.jhf.core.bo.contructor.OrderInfoFactory;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.BaseMainDao;
 import cn.bestwiz.jhf.core.dao.DAOFactory;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
-import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
 
 public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 	
@@ -123,19 +128,32 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 
 	
 
-	protected OrderBindInfo buildSingleOrderBindInfo(String orderBindId,int orderBindType,JhfAliveOrder order){
+	protected cn.bestwiz.jhf.core.bo.bean.OrderBindInfo buildSingleOrderBindInfo(String orderBindId,int orderBindType,JhfAliveOrder order){
 		
 		OrderBindInfo bindInfo = new OrderBindInfo();
 		
 		bindInfo.setOrderBindId(orderBindId);
-		bindInfo.setOrderId(order.getId().getOrderId());
-		bindInfo.setTradeId(order.getId().getTradeId());
+		
+		Map om = new TreeMap<String, FillingOrderInfo>();
+		fillOrderMap(om,order);
+		bindInfo.setOrderMap(om);
+		
+		CustTradePolicy ctp = new CustTradePolicy();
+		fillOrderMap(om,order);
+		bindInfo.setCustTradePolicy(ctp);
+		
+		
+		bindInfo.setTradePriceInfo(tradePriceInfo);
+		
+//		bindInfo.setOrderId(order.getId().getOrderId());
+//		bindInfo.setTradeId(order.getId().getTradeId());
 		
 		bindInfo.setCurrencyPair(order.getCurrencyPair());
-		bindInfo.setProductId(order.getProductId());
+//		bindInfo.setProductId(order.getProductId());
 		bindInfo.setCustomerId(order.getCustomerId());
 		bindInfo.setAmount(order.getOrderAmount());
 		bindInfo.setSide(order.getSide().intValue());
+		
 		bindInfo.setMode(getOrderBuilderMessageVender().getMode());
 		
 		if(order.getSide().intValue() == 1){
@@ -153,6 +171,26 @@ public abstract class OrderBuilderAbstractFactory implements OrderBuilder{
 		bindInfo.setSlipConfigType(getOrderBuilderMessageVender().getSlipType());
 		
 		return bindInfo;
+		
+	}
+	
+	
+	private void fillOrderMap(Map om,JhfAliveOrder order){
+		
+		om.put(order.getId().getOrderId(), 
+				OrderInfoFactory.getInstance().convertToFillOrderInfo(order));
+		
+	}
+	
+	private void fillCustTradePolicy(){
+		/** 交易模式 **/
+		private int mode;
+		/** 滞留的位置 是 1，还是 2**/
+		private int stayPlace;
+		/** slippage 配置编号 **/
+		private int slipConfigType; 
+		
+		
 		
 	}
 	

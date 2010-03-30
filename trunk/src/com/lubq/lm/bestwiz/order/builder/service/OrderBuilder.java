@@ -5,7 +5,7 @@ import java.util.List;
 import cn.bestwiz.jhf.core.bo.exceptions.DaoException;
 import cn.bestwiz.jhf.core.dao.bean.main.JhfAliveOrder;
 import cn.bestwiz.jhf.core.idgenerate.exception.IdGenerateException;
-import cn.bestwiz.jhf.core.jms.bean.OrderBindInfo;
+
 import cn.bestwiz.jhf.core.jms.exception.JMSException;
 
 import com.lubq.lm.bestwiz.order.builder.bean.OrderBuilderMessageVender;
