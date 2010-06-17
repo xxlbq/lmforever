@@ -24,5 +24,5 @@ public interface CustomerBuilder {
 
 	//order 执行完成后的方法
 	void finishCustomerDependency() throws JMSException;
-	
+	  
 }
