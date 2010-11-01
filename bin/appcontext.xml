@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+
+
+
+    <bean id="beanTarget" class="com.lubq.lm.spr.HelloImpl"></bean>
+
+<!-- 1.MethodBeforeAdvice -->
+    <bean id="theBeforeAdvice"
+        class="com.lubq.lm.spr.TestBeforeAdvice">
+    </bean>
+<!-- 2.AfterReturningAdvice -->
+    <bean id="theAfterAdvice"
+        class="com.lubq.lm.spr.TestAfterAdvice">
+    </bean>
+
+
+    <bean id="theAdvisor"
+        class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
+        <property name="advice">
+<!-- 
+            <ref local="theBeforeAdvice" />
+-->            <ref local="theAfterAdvice" />
+        </property>
+        
+        <property name="mappedName">
+            <value>say*</value>
+        </property>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    </bean>
+
+    <bean id="hello"
+        class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces">
+            <value>com.lubq.lm.spr.Hello</value>
+        </property>
+        <property name="target">
+            <ref local="beanTarget" />
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>theAdvisor</value>
+            </list>
+        </property>
+    </bean>
+
+
+
+
+</beans>
